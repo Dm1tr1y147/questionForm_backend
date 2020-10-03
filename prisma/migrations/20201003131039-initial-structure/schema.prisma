@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url = "***"
 }
 
 generator client {
@@ -24,14 +24,14 @@ model Poll {
   userId      Int?
   title       String
   description String?
-  slug        String     @unique @default(cuid())
+  slug        String     @unique
   questions   Question[]
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model Question {
-  id       Int       @id @default(autoincrement())
-  Poll     Poll?     @relation(fields: [pollId], references: [id])
+  id       Int      @id @default(autoincrement())
+  Poll     Poll?    @relation(fields: [pollId], references: [id])
   pollId   Int?
   title    String
   variants Variant[]
