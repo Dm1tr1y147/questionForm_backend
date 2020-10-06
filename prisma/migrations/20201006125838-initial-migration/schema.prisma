@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgres"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// model User {
+//   id        Int      @id @default(autoincrement())
+//   name      String
+//   email     String?
+//   createdAt DateTime @default(now())
+//   polls     Poll[]
+// }
+
+// model Poll {
+//   id          Int        @id @default(autoincrement())
+//   User        User?      @relation(fields: [userId], references: [id])
+//   userId      Int?
+//   title       String
+//   description String?
+//   slug        String     @unique @default(cuid())
+//   questions   Question[]
+//   createdAt   DateTime   @default(now())
+// }
+
+// model Question {
+//   id       Int       @id @default(autoincrement())
+//   Poll     Poll?     @relation(fields: [pollId], references: [id])
+//   pollId   Int?
+//   title    String
+//   variants Variant[]
+// }
+
+// model Variant {
+//   id         Int       @id @default(autoincrement())
+//   Question   Question? @relation(fields: [questionId], references: [id])
+//   questionId Int?
+//   text       String
+//   count      Int       @default(0)
+// }
+
+model Form {
+  title            String
+  choisesQuestions ChoisesQuestion[]
+  inputQuestions   InputQuestion[]
+  submissions      FormSubmission[]
+  dateCreated      DateTime          @default(now())
+
+  id     Int  @id
+  userId Int
+  author User @relation(fields: [userId], references: [id])
+}
+
+model ChoisesQuestion {
+  title    String
+  variants Variant[]
+  type     ChoiseType
+  number   Int
+
+  id     Int   @id
+  Form   Form? @relation(fields: [formId], references: [id])
+  formId Int?
+}
+
+model Variant {
+  text String
+
+  id                Int              @id
+  ChoisesQuestion   ChoisesQuestion? @relation(fields: [choisesQuestionId], references: [id])
+  choisesQuestionId Int?
+}
+
+model InputQuestion {
+  title  String
+  number Int
+
+  id     Int   @id
+  Form   Form? @relation(fields: [formId], references: [id])
+  formId Int?
+}
+
+model FormSubmission {
+  answers Answer[]
+  date    DateTime @default(now())
+
+
+  id     Int   @id
+  user   User  @relation(fields: [userId], references: [id])
+  Form   Form? @relation(fields: [formId], references: [id])
+  formId Int?
+  userId Int
+}
+
+model Answer {
+  id               Int             @id
+  userInput        String
+  userChoise       Int
+  type             AnswerType
+  FormSubmission   FormSubmission? @relation(fields: [formSubmissionId], references: [id])
+  formSubmissionId Int?
+}
+
+enum ChoiseType {
+  SELECT
+  CHECK
+  CHOOSE
+}
+
+enum AnswerType {
+  INPUT
+  CHOISE
+}
+
+model User {
+  id   Int    @id
+  name String
+
+  forms            Form[]
+  formsSubmissions FormSubmission[]
+}

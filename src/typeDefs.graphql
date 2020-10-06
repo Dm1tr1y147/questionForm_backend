@@ -1,0 +1,53 @@
+type Query {
+  forms: [Form]
+  form(id: Int!): Form!
+}
+
+type Form {
+  id: Int!
+  title: String!
+  choisesQuestions: [ChoisesQuestion!]!
+  inputQuestions: [InputQuestion!]!
+  submissions: [FormSubmission!]!
+  dateCreated: String!
+}
+
+type ChoisesQuestion {
+  title: String!
+  variants: [Variant!]!
+  type: ChoiseType!
+  number: Int!
+}
+
+type Variant {
+  text: String!
+}
+
+type InputQuestion {
+  title: String!
+  number: Int!
+}
+
+type FormSubmission {
+  id: Int!
+  answers: [Answer!]!
+  date: String!
+}
+
+type Answer {
+  id: Int!
+  userInput: String
+  userChoise: Int
+  type: AnswerType!
+}
+
+enum ChoiseType {
+  SELECT
+  CHECK
+  CHOOSE
+}
+
+enum AnswerType {
+  INPUT
+  CHOISE
+}

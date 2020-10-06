@@ -6,4 +6,4 @@ Backend used with QuestionForm application.
 
 - Prisma
 - Graphql
-- Graphql-yoga
+- Apollo Server

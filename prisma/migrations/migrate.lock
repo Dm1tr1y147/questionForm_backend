@@ -1,3 +1,4 @@
 # Prisma Migrate lockfile v1
 
-20201003131039-initial-structure
+20201006125838-initial-migration
+20201006185953-improved-schema-structure
