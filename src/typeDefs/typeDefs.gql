@@ -1,20 +1,23 @@
 type Query {
-  forms: [Form]
-  form(id: Int!): Form!
+  forms: [Form!]!
+  form(id: Int!): Form
 }
 
 type Form {
   id: Int!
   title: String!
-  choisesQuestions: [ChoisesQuestion!]!
-  inputQuestions: [InputQuestion!]!
+  questions: [Question!]!
   submissions: [FormSubmission!]!
   dateCreated: String!
 }
-
-type ChoisesQuestion {
+interface Question {
   title: String!
-  variants: [Variant!]!
+  number: Int!
+}
+
+type ChoisesQuestion implements Question {
+  title: String!
+  variants: [Variant!]
   type: ChoiseType!
   number: Int!
 }
@@ -23,7 +26,7 @@ type Variant {
   text: String!
 }
 
-type InputQuestion {
+type InputQuestion implements Question {
   title: String!
   number: Int!
 }
@@ -34,11 +37,21 @@ type FormSubmission {
   date: String!
 }
 
-type Answer {
+interface Answer {
   id: Int!
-  userInput: String
-  userChoise: Int
   type: AnswerType!
+}
+
+type InputAnswer implements Answer {
+  id: Int!
+  type: AnswerType!
+  userInput: String
+}
+
+type ChoiseAnswer implements Answer {
+  id: Int!
+  type: AnswerType!
+  userChoise: Int!
 }
 
 enum ChoiseType {

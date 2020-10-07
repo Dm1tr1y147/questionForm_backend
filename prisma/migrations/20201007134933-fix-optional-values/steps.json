@@ -1,0 +1,17 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "UpdateField",
+      "model": "Answer",
+      "field": "userInput",
+      "arity": "Optional"
+    },
+    {
+      "tag": "UpdateField",
+      "model": "Answer",
+      "field": "userChoise",
+      "arity": "Optional"
+    }
+  ]
+}

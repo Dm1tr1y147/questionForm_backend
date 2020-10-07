@@ -1,0 +1,12 @@
+overwrite: true
+schema: "src/typeDefs/typeDefs.gql"
+documents: null
+generates:
+  src/typeDefs/typeDefs.gen.ts:
+    config:
+      useIndexSignature: true
+      wrapFieldDefinitions: true
+      enumsAsTypes: true
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
