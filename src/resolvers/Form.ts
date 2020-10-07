@@ -1,7 +1,6 @@
-import { getForm } from "../db"
+import { getForm, getForms } from "../controllers"
 import {
   Form,
-  FormSubmission,
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
@@ -15,32 +14,26 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   { db }
 ) => {
   try {
-    const dbForm = await getForm(db, id)
+    return await getForm(db, id)
+  } catch (err) {
+    return err
+  }
+}
 
-    if (dbForm == null) throw new Error("Not found")
-
-    const form: Form = {
-      id: dbForm.id,
-      title: dbForm.title,
-      questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions],
-      dateCreated: dbForm.dateCreated.toString(),
-      submissions: dbForm.submissions.map<FormSubmission>((submission) => {
-        return {
-          answers: submission.answers,
-          date: submission.date.toString(),
-          id: submission.id,
-        }
-      }),
-    }
-
-    return form
+const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
+  _,
+  __,
+  { db }
+) => {
+  try {
+    return await getForms(db, 1)
   } catch (err) {
     return err
   }
 }
 
 const QuestionResolver: QuestionResolvers = {
-  __resolveType(obj: any, context, info) {
+  __resolveType(obj: any) {
     if (obj.type) {
       return "ChoisesQuestion"
     }
@@ -49,7 +42,7 @@ const QuestionResolver: QuestionResolvers = {
 }
 
 const AnswerResolver: AnswerResolvers = {
-  __resolveType(obj, context, info) {
+  __resolveType(obj) {
     if (obj.type == "CHOISE") return "ChoiseAnswer"
     if (obj.type == "INPUT") return "InputAnswer"
 
@@ -57,4 +50,4 @@ const AnswerResolver: AnswerResolvers = {
   },
 }
 
-export { formQuery, QuestionResolver, AnswerResolver }
+export { formQuery, formsQuery, QuestionResolver, AnswerResolver }

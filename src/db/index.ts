@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client"
 
-const getForm = async (db: PrismaClient, id: number) =>
-  db.form.findOne({
+const getDBForm = async (db: PrismaClient, id?: number) => {
+  return await db.form.findOne({
     where: {
-      id: id,
+      id: id ? id : undefined,
     },
     include: {
       author: true,
@@ -20,5 +20,29 @@ const getForm = async (db: PrismaClient, id: number) =>
       },
     },
   })
+}
 
-export { getForm }
+const getDBFormByUser = async (db: PrismaClient, id: number) => {
+  return await db.form.findMany({
+    where: {
+      author: {
+        id,
+      },
+    },
+    include: {
+      choisesQuestions: {
+        include: {
+          variants: true,
+        },
+      },
+      inputQuestions: true,
+      submissions: {
+        include: {
+          answers: true,
+        },
+      },
+    },
+  })
+}
+
+export { getDBForm, getDBFormByUser }

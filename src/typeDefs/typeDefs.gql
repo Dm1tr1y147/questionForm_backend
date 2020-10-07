@@ -3,6 +3,10 @@ type Query {
   form(id: Int!): Form
 }
 
+type Mutation {
+  login(id: Int!, admin: Boolean!): User
+}
+
 type Form {
   id: Int!
   title: String!
@@ -10,6 +14,7 @@ type Form {
   submissions: [FormSubmission!]!
   dateCreated: String!
 }
+
 interface Question {
   title: String!
   number: Int!
@@ -63,4 +68,11 @@ enum ChoiseType {
 enum AnswerType {
   INPUT
   CHOISE
+}
+
+type User {
+  name: String!
+  id: Int!
+  forms: [Form!]!
+  token: String
 }
