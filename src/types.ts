@@ -2,10 +2,11 @@ import { PrismaClient } from "@prisma/client"
 import {} from 'express-jwt'
 
 export type ApolloContextType = {
-  db: PrismaClient
+  db: PrismaClient,
+  user: JwtPayloadType | null
 }
 
-export type JwtPayload = {
+export type JwtPayloadType = {
   id: number,
   admin: boolean
 }

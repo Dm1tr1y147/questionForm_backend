@@ -45,4 +45,19 @@ const getDBFormByUser = async (db: PrismaClient, id: number) => {
   })
 }
 
-export { getDBForm, getDBFormByUser }
+const getDBFormAuthor = async (db: PrismaClient, id: number) => {
+  return await db.form.findOne({
+    where: {
+      id,
+    },
+    select: {
+      author: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  })
+}
+
+export { getDBForm, getDBFormByUser, getDBFormAuthor }

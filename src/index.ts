@@ -1,12 +1,11 @@
 import { ApolloServer } from "apollo-server-express"
 import express from "express"
 import expressJwt from "express-jwt"
-import jwt from 'jsonwebtoken'
 import { PrismaClient } from "@prisma/client"
 
 import typeDefs from "./typeDefs"
 import resolvers from "./resolvers"
-import { ApolloContextType } from "./types"
+import { ApolloContextType, JwtPayloadType } from "./types"
 
 const app = express()
 
@@ -21,10 +20,15 @@ app.use(
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }): Promise<ApolloContextType> => {
+  context: async ({
+    req,
+  }: {
+    req: Request & { user: JwtPayloadType }
+  }): Promise<ApolloContextType> => {
     const db = new PrismaClient()
+    const user = req.user || null
 
-    return { db }
+    return { db, user }
   },
 })
 

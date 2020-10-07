@@ -1,4 +1,4 @@
-import { getForm, getForms } from "../controllers"
+import { checkRightsAndResolve, getForm, getFormAuthor, getForms } from "../controllers"
 import {
   Form,
   QueryFormArgs,
@@ -11,10 +11,18 @@ import { ApolloContextType } from "../types"
 const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   _,
   { id },
-  { db }
+  { db, user }
 ) => {
   try {
-    return await getForm(db, id)
+    const authorId = await getFormAuthor(db, id)
+
+    const getFormById = () => getForm(db, id)
+
+    return await checkRightsAndResolve(
+      user!,
+      { id: authorId, admin: false },
+      getFormById
+    )
   } catch (err) {
     return err
   }

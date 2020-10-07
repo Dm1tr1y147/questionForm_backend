@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 import { MutationLoginArgs, Resolver, User } from "../typeDefs/typeDefs.gen"
-import { ApolloContextType, JwtPayload } from "../types"
+import { ApolloContextType, JwtPayloadType } from "../types"
 
 const loginResolver: Resolver<
   User,
@@ -9,7 +9,7 @@ const loginResolver: Resolver<
   MutationLoginArgs
 > = async (_, { id, admin }, { db }) => {
   try {
-    const payload: JwtPayload = {
+    const payload: JwtPayloadType = {
       id,
       admin,
     }

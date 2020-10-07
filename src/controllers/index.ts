@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client"
-import { getDBForm, getDBFormByUser } from "../db"
+import { getDBForm, getDBFormAuthor, getDBFormByUser } from "../db"
 import { FullForm } from "../db/types"
 
 import { Form as GraphqlForm, FormSubmission } from "../typeDefs/typeDefs.gen"
+import { JwtPayloadType } from "../types"
 
 const getForm = async (
   db: PrismaClient,
@@ -50,4 +51,27 @@ const getForms = async (
   return forms
 }
 
-export { getForm, getForms }
+const checkRightsAndResolve = async (
+  user: JwtPayloadType,
+  expected: JwtPayloadType,
+  controller: any
+) => {
+  if (
+    (!expected.id || user.id == expected.id) &&
+    (!expected.admin || expected.admin)
+  )
+    return controller()
+  throw new Error("Authentification error")
+}
+
+const getFormAuthor = async (db: PrismaClient, id: number) => {
+  const author = await getDBFormAuthor(db, id)
+
+  if (!author) throw Error("Not found")
+
+  const authorId = author.author.id
+
+  return authorId
+}
+
+export { getForm, getForms, checkRightsAndResolve, getFormAuthor }
