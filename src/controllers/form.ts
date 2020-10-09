@@ -1,17 +1,23 @@
-import { PrismaClient } from "@prisma/client"
-import { ApolloError } from "apollo-server-express"
+import { PrismaClient } from '@prisma/client'
+import { ApolloError } from 'apollo-server-express'
 
-import { getDBForm, getDBFormByUser } from "../db"
-import { FullForm } from "../db/types"
-import { Form as GraphqlForm, FormSubmission } from "../typeDefs/typeDefs.gen"
+import { createDBForm, getDBForm, getDBFormByUser } from '../db'
+import { FullForm } from '../db/types'
+import {
+  ChoisesQuestion,
+  Form as GraphqlForm,
+  FormSubmission,
+  InputQuestion,
+  MutationCreateFormArgs,
+  Question
+} from '../typeDefs/typeDefs.gen'
 
-const getForm = async (
-  db: PrismaClient,
-  id: number
-): Promise<GraphqlForm | null> => {
+import { createChoises, newForm } from './types'
+
+const getForm = async (db: PrismaClient, id: number) => {
   const dbForm: FullForm = await getDBForm(db, id)
 
-  if (dbForm == null) throw new ApolloError("Not found")
+  if (dbForm == null) throw new ApolloError('Not found')
 
   const form: GraphqlForm = {
     id: dbForm.id,
@@ -21,18 +27,15 @@ const getForm = async (
     submissions: dbForm.submissions.map<FormSubmission>((submission) => ({
       answers: submission.answers,
       date: submission.date.toString(),
-      id: submission.id,
+      id: submission.id
     })),
-    author: dbForm.author,
+    author: dbForm.author
   }
 
   return form
 }
 
-const getForms = async (
-  db: PrismaClient,
-  userId: number
-): Promise<GraphqlForm[]> => {
+const getForms = async (db: PrismaClient, userId: number) => {
   const dbForms = await getDBFormByUser(db, userId)
 
   const forms = [
@@ -44,12 +47,55 @@ const getForms = async (
       submissions: form.submissions.map<FormSubmission>((submission) => ({
         answers: submission.answers,
         date: submission.date.toString(),
-        id: submission.id,
-      })),
-    })),
+        id: submission.id
+      }))
+    }))
   ]
 
   return forms
 }
 
-export { getForm, getForms }
+const createFormFrom = async (
+  db: PrismaClient,
+  params: MutationCreateFormArgs,
+  id: number
+) => {
+  const parsedQuestions = <Question[]>JSON.parse(params.questions)
+  const newForm: newForm = {
+    title: params.title,
+    inputQuestions: {
+      create: parsedQuestions.filter(
+        (val: InputQuestion | ChoisesQuestion, index) => {
+          if (!('type' in val))
+            return {
+              number: index,
+              title: val.title
+            }
+        }
+      )
+    },
+    choisesQuestions: {
+      create: parsedQuestions.flatMap<createChoises>(
+        (val: InputQuestion | ChoisesQuestion, index) => {
+          if ('type' in val) {
+            return [
+              {
+                number: index,
+                title: val.title,
+                type: val.type,
+                variants: { create: val.variants }
+              }
+            ]
+          }
+          {
+            return []
+          }
+        }
+      )
+    }
+  }
+
+  return createDBForm(db, newForm, id)
+}
+
+export { getForm, getForms, createFormFrom }

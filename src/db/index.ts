@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { UserInputError } from 'apollo-server-express'
+import { newForm } from '../controllers/types'
 import { MutationRegisterArgs } from '../typeDefs/typeDefs.gen'
 import { IFindUserParams } from './types'
 
@@ -69,7 +70,7 @@ const getDBFormAuthor = async (db: PrismaClient, id: number) => {
   })
 }
 
-const createUser = async (
+const createDBUser = async (
   db: PrismaClient,
   { email, name }: MutationRegisterArgs
 ) => {
@@ -78,7 +79,7 @@ const createUser = async (
   })
 }
 
-const findUserBy = async (db: PrismaClient, params: IFindUserParams) => {
+const findDBUserBy = async (db: PrismaClient, params: IFindUserParams) => {
   const user = await db.user.findOne({
     where: {
       ...params
@@ -89,4 +90,28 @@ const findUserBy = async (db: PrismaClient, params: IFindUserParams) => {
   return user
 }
 
-export { getDBForm, getDBFormByUser, getDBFormAuthor, createUser, findUserBy }
+const createDBForm = async (
+  db: PrismaClient,
+  { title, inputQuestions, choisesQuestions }: newForm,
+  id: number
+) => {
+  console.log(title, inputQuestions, choisesQuestions)
+
+  return await db.form.create({
+    data: {
+      author: { connect: { id } },
+      title,
+      choisesQuestions,
+      inputQuestions
+    }
+  })
+}
+
+export {
+  getDBForm,
+  getDBFormByUser,
+  getDBFormAuthor,
+  createDBUser,
+  findDBUserBy,
+  createDBForm
+}

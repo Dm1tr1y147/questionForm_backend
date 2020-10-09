@@ -2,14 +2,16 @@ import {
   checkRightsAndResolve,
   getForm,
   getFormAuthor,
-  getForms
+  getForms,
+  createFormFrom
 } from '../controllers'
 import {
   Form,
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
-  AnswerResolvers
+  AnswerResolvers,
+  MutationCreateFormArgs
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
@@ -60,6 +62,29 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
   }
 }
 
+const createForm: Resolver<
+  Form,
+  {},
+  ApolloContextType,
+  MutationCreateFormArgs
+> = async (_, { questions, title }, { db, user }) => {
+  const createNewForm = (id: number) =>
+    createFormFrom(
+      db,
+      {
+        title,
+        questions
+      },
+      id
+    )
+
+  return await checkRightsAndResolve({
+    user,
+    expected: { id: 0, self: true },
+    controller: createNewForm
+  })
+}
+
 const QuestionResolver: QuestionResolvers = {
   __resolveType(obj: any) {
     if (obj.type) {
@@ -78,4 +103,4 @@ const AnswerResolver: AnswerResolvers = {
   }
 }
 
-export { formQuery, formsQuery, QuestionResolver, AnswerResolver }
+export { formQuery, formsQuery, QuestionResolver, AnswerResolver, createForm }

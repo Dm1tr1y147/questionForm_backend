@@ -1,3 +1,8 @@
+import {
+  ChoisesQuestion,
+  InputQuestion,
+  Variant
+} from '../typeDefs/typeDefs.gen'
 import { JwtPayloadType } from '../types'
 
 type expectedType = {
@@ -15,4 +20,16 @@ type CheckRightsAndResolve = <ReturnType, ControllerType extends Function>(
   params: ICheckRightsAndResolve<ControllerType>
 ) => Promise<ReturnType>
 
-export { CheckRightsAndResolve }
+type newForm = {
+  title: string
+  choisesQuestions: {
+    create: createChoises[]
+  }
+  inputQuestions: { create: InputQuestion[] }
+}
+
+type createChoises = Omit<ChoisesQuestion, 'variants'> & {
+  variants: { create: Variant[] }
+}
+
+export { CheckRightsAndResolve, newForm, createChoises }

@@ -7,6 +7,7 @@ type Query {
 type Mutation {
   login(email: String!): LoginResult
   register(name: String!, email: String!): LoginResult
+  createForm(title: String!, questions: String!): Form!
 }
 
 type Form {
@@ -25,7 +26,7 @@ interface Question {
 
 type ChoisesQuestion implements Question {
   title: String!
-  variants: [Variant!]
+  variants: [Variant!]!
   type: ChoiseType!
   number: Int!
 }

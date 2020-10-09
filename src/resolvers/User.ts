@@ -1,7 +1,7 @@
 import { UserInputError } from 'apollo-server-express'
 
-import { checkRightsAndResolve, sendTokenEmail } from '../controllers/auth'
-import { createUser, findUserBy } from '../db'
+import { checkRightsAndResolve, sendTokenEmail } from '../controllers'
+import { createDBUser, findDBUserBy } from '../db'
 import {
   MutationLoginArgs,
   MutationRegisterArgs,
@@ -19,7 +19,7 @@ const loginResolver: Resolver<
   MutationLoginArgs
 > = async (_, { email }, { db }) => {
   try {
-    const user = await findUserBy(db, { email })
+    const user = await findDBUserBy(db, { email })
 
     if (!user) throw new UserInputError('No such user')
 
@@ -38,7 +38,7 @@ const registerResolver: Resolver<
   MutationRegisterArgs
 > = async (_, { email, name }, { db }) => {
   try {
-    const user = await createUser(db, { email, name })
+    const user = await createDBUser(db, { email, name })
 
     await sendTokenEmail(email, user)
 
@@ -54,7 +54,7 @@ const userResolver: Resolver<
   ApolloContextType,
   QueryUserArgs
 > = async (_, { id }, { db, user }) => {
-  const findUserById = (id: number) => findUserBy(db, { id })
+  const findUserById = (id: number) => findDBUserBy(db, { id })
 
   try {
     return await checkRightsAndResolve({

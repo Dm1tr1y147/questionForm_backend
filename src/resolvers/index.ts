@@ -4,7 +4,8 @@ import {
   formQuery as form,
   QuestionResolver as Question,
   AnswerResolver as Answer,
-  formsQuery as forms
+  formsQuery as forms,
+  createForm
 } from './Form'
 import {
   loginResolver as login,
@@ -20,7 +21,8 @@ const resolvers: Resolvers<ApolloContextType> = {
   },
   Mutation: {
     login,
-    register
+    register,
+    createForm
   },
   Question,
   Answer
