@@ -7,3 +7,4 @@ Backend used with QuestionForm application.
 - Prisma
 - Graphql
 - Apollo Server
+- SendGrid

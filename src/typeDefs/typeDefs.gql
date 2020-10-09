@@ -4,7 +4,8 @@ type Query {
 }
 
 type Mutation {
-  login(id: Int!, admin: Boolean!): User
+  login(email: String!): LoginResult
+  register(name: String!, email: String!): LoginResult
 }
 
 type Form {
@@ -73,7 +74,12 @@ enum AnswerType {
 
 type User {
   name: String!
+  email: String!
   id: Int!
   forms: [Form!]
   token: String
+}
+
+type LoginResult {
+  success: Boolean!
 }

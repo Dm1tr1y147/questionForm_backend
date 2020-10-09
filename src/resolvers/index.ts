@@ -6,7 +6,7 @@ import {
   AnswerResolver as Answer,
   formsQuery as forms,
 } from "./Form"
-import { loginResolver as login } from "./User"
+import { loginResolver as login, registerResolver as register } from "./User"
 
 const resolvers: Resolvers<ApolloContextType> = {
   Query: {
@@ -15,6 +15,7 @@ const resolvers: Resolvers<ApolloContextType> = {
   },
   Mutation: {
     login,
+    register
   },
   Question,
   Answer,

@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client"
+import { ApolloError } from "apollo-server-express"
+
 import { getDBForm, getDBFormByUser } from "../db"
 import { FullForm } from "../db/types"
-
 import { Form as GraphqlForm, FormSubmission } from "../typeDefs/typeDefs.gen"
 
 const getForm = async (
@@ -10,7 +11,7 @@ const getForm = async (
 ): Promise<GraphqlForm | null> => {
   const dbForm: FullForm = await getDBForm(db, id)
 
-  if (dbForm == null) throw new Error("Not found")
+  if (dbForm == null) throw new ApolloError("Not found")
 
   const form: GraphqlForm = {
     id: dbForm.id,

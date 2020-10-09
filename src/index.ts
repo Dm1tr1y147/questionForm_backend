@@ -3,6 +3,8 @@ import express from "express"
 import expressJwt from "express-jwt"
 import { PrismaClient } from "@prisma/client"
 
+require("dotenv").config()
+
 import typeDefs from "./typeDefs"
 import resolvers from "./resolvers"
 import { ApolloContextType, JwtPayloadType } from "./types"
@@ -11,7 +13,7 @@ const app = express()
 
 app.use(
   expressJwt({
-    secret: "SuperSecret",
+    secret: "" + process.env.JWT_SECRET,
     credentialsRequired: false,
     algorithms: ["HS256"],
   })
@@ -32,6 +34,7 @@ const server = new ApolloServer({
 
     return { db, user }
   },
+  debug: false,
 })
 
 server.applyMiddleware({ app })

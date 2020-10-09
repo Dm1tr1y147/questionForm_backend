@@ -10,6 +10,7 @@ const getDBForm = async (db: PrismaClient, id: number) => {
         select: {
           id: true,
           name: true,
+          email: true
         },
       },
       choisesQuestions: {
