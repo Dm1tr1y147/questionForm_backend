@@ -1,4 +1,9 @@
-import { checkRightsAndResolve, getForm, getFormAuthor, getForms } from "../controllers"
+import {
+  checkRightsAndResolve,
+  getForm,
+  getFormAuthor,
+  getForms,
+} from "../controllers"
 import {
   Form,
   QueryFormArgs,
@@ -18,11 +23,17 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
 
     const getFormById = () => getForm(db, id)
 
-    return await checkRightsAndResolve(
-      user!,
-      { id: authorId, admin: false },
-      getFormById
-    )
+    return await checkRightsAndResolve({
+      user,
+      expected: {
+        id: {
+          n: 0,
+          self: false,
+        },
+        admin: false,
+      },
+      controller: getFormById,
+    })
   } catch (err) {
     return err
   }
@@ -31,10 +42,25 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
 const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
   _,
   __,
-  { db }
+  { db, user }
 ) => {
   try {
-    return await getForms(db, 1)
+    const getFormsByUserId = (userId: number) => getForms(db, userId)
+
+    return await checkRightsAndResolve<
+      Form[],
+      (userId: number) => Promise<Form[] | null>
+    >({
+      user,
+      expected: {
+        id: {
+          n: 0,
+          self: true,
+        },
+        admin: false,
+      },
+      controller: getFormsByUserId,
+    })
   } catch (err) {
     return err
   }

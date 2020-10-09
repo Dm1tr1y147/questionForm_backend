@@ -2,9 +2,9 @@
 
 /build
 
-.env.local
-
 *.gen.ts
+
+*.local*
 
 npm-debug.log*
 yarn-debug.log*

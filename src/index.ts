@@ -1,4 +1,4 @@
-import { ApolloServer } from "apollo-server-express"
+import { ApolloServer, makeExecutableSchema } from "apollo-server-express"
 import express from "express"
 import expressJwt from "express-jwt"
 import { PrismaClient } from "@prisma/client"
@@ -18,8 +18,10 @@ app.use(
 )
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema: makeExecutableSchema({
+    typeDefs,
+    resolvers,
+  }),
   context: async ({
     req,
   }: {

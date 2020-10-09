@@ -1,5 +1,9 @@
 import jwt from "jsonwebtoken"
-import { MutationLoginArgs, Resolver, User } from "../typeDefs/typeDefs.gen"
+import {
+  MutationLoginArgs,
+  Resolver,
+  User,
+} from "../typeDefs/typeDefs.gen"
 import { ApolloContextType, JwtPayloadType } from "../types"
 
 const loginResolver: Resolver<

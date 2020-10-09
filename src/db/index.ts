@@ -1,12 +1,17 @@
 import { PrismaClient } from "@prisma/client"
 
-const getDBForm = async (db: PrismaClient, id?: number) => {
+const getDBForm = async (db: PrismaClient, id: number) => {
   return await db.form.findOne({
     where: {
-      id: id ? id : undefined,
+      id,
     },
     include: {
-      author: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
       choisesQuestions: {
         include: {
           variants: true,

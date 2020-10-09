@@ -13,6 +13,7 @@ type Form {
   questions: [Question!]!
   submissions: [FormSubmission!]!
   dateCreated: String!
+  author: User
 }
 
 interface Question {
@@ -73,6 +74,6 @@ enum AnswerType {
 type User {
   name: String!
   id: Int!
-  forms: [Form!]!
+  forms: [Form!]
   token: String
 }
