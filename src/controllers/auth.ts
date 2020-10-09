@@ -9,15 +9,17 @@ import jwt from 'jsonwebtoken'
 require('dotenv').config()
 
 import { getDBFormAuthor } from '../db'
+import { sendToken } from '../mailer'
 import { CheckRightsAndResolve } from './types'
 
 const checkRightsAndResolve: CheckRightsAndResolve = async (params) => {
   const { user, expected, controller } = params
 
-  if (!user) throw new AuthenticationError('Authentication required')
+  if (!user) throw new AuthenticationError('Authorization required')
 
-  if (expected.id.self) return controller(user.id)
-  if (!expected.id.n || user.id == expected.id.n) return controller()
+  if (expected.id && expected.self) return controller(expected.id || user.id)
+  if (expected.self) return controller(user.id)
+  if (!expected.id || user.id == expected.id) return controller()
 
   throw new ForbiddenError('Access denied')
 }
@@ -39,4 +41,15 @@ const tokenGenerate = (email: string, id: number) => {
   })
 }
 
-export { checkRightsAndResolve, getFormAuthor, tokenGenerate }
+const sendTokenEmail = async (
+  email: string,
+  user: { id: number; name: string }
+) => {
+  const token = tokenGenerate(email, user.id)
+
+  const res = await sendToken(user.name, email, token)
+
+  if (res[0].statusCode != 202) return new ApolloError("Couldn't send email")
+}
+
+export { checkRightsAndResolve, getFormAuthor, tokenGenerate, sendTokenEmail }

@@ -1,11 +1,8 @@
-import { JwtPayloadType } from "../types"
+import { JwtPayloadType } from '../types'
 
 type expectedType = {
-  id: {
-    n: number
-    self: boolean
-  }
-  admin: boolean
+  id: number
+  self: boolean
 }
 
 interface ICheckRightsAndResolve<T> {

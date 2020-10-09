@@ -2,16 +2,16 @@ import {
   checkRightsAndResolve,
   getForm,
   getFormAuthor,
-  getForms,
-} from "../controllers"
+  getForms
+} from '../controllers'
 import {
   Form,
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
-  AnswerResolvers,
-} from "../typeDefs/typeDefs.gen"
-import { ApolloContextType } from "../types"
+  AnswerResolvers
+} from '../typeDefs/typeDefs.gen'
+import { ApolloContextType } from '../types'
 
 const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   _,
@@ -26,13 +26,10 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
     return await checkRightsAndResolve({
       user,
       expected: {
-        id: {
-          n: 0,
-          self: false,
-        },
-        admin: false,
+        id: 0,
+        self: false
       },
-      controller: getFormById,
+      controller: getFormById
     })
   } catch (err) {
     return err
@@ -53,13 +50,10 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
     >({
       user,
       expected: {
-        id: {
-          n: 0,
-          self: true,
-        },
-        admin: false,
+        id: 0,
+        self: true
       },
-      controller: getFormsByUserId,
+      controller: getFormsByUserId
     })
   } catch (err) {
     return err
@@ -69,19 +63,19 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
 const QuestionResolver: QuestionResolvers = {
   __resolveType(obj: any) {
     if (obj.type) {
-      return "ChoisesQuestion"
+      return 'ChoisesQuestion'
     }
-    return "InputQuestion"
-  },
+    return 'InputQuestion'
+  }
 }
 
 const AnswerResolver: AnswerResolvers = {
   __resolveType(obj) {
-    if (obj.type == "CHOISE") return "ChoiseAnswer"
-    if (obj.type == "INPUT") return "InputAnswer"
+    if (obj.type == 'CHOISE') return 'ChoiseAnswer'
+    if (obj.type == 'INPUT') return 'InputAnswer'
 
     return null
-  },
+  }
 }
 
 export { formQuery, formsQuery, QuestionResolver, AnswerResolver }

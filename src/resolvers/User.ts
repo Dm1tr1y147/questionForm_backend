@@ -1,13 +1,14 @@
-import { ApolloError, UserInputError } from 'apollo-server-express'
+import { UserInputError } from 'apollo-server-express'
 
-import { tokenGenerate } from '../controllers/auth'
-import { sendToken } from '../mailer'
+import { checkRightsAndResolve, sendTokenEmail } from '../controllers/auth'
+import { createUser, findUserBy } from '../db'
 import {
   MutationLoginArgs,
   MutationRegisterArgs,
   Resolver,
+  LoginResult,
   User,
-  LoginResult
+  QueryUserArgs
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
@@ -18,19 +19,11 @@ const loginResolver: Resolver<
   MutationLoginArgs
 > = async (_, { email }, { db }) => {
   try {
-    const user = await db.user.findOne({
-      where: {
-        email
-      }
-    })
+    const user = await findUserBy(db, { email })
 
     if (!user) throw new UserInputError('No such user')
 
-    const token = tokenGenerate(email, user.id)
-
-    const res = await sendToken(user.name, email, token)
-
-    if (res[0].statusCode != 202) return new ApolloError("Couldn't send email")
+    await sendTokenEmail(email, user)
 
     return { success: true }
   } catch (err) {
@@ -45,15 +38,9 @@ const registerResolver: Resolver<
   MutationRegisterArgs
 > = async (_, { email, name }, { db }) => {
   try {
-    const user = await db.user.create({
-      data: { email, name }
-    })
+    const user = await createUser(db, { email, name })
 
-    const token = tokenGenerate(email, user.id)
-
-    const res = await sendToken(user.name, email, token)
-
-    if (res[0].statusCode != 202) return new ApolloError("Couldn't send email")
+    await sendTokenEmail(email, user)
 
     return { success: true }
   } catch (err) {
@@ -61,4 +48,23 @@ const registerResolver: Resolver<
   }
 }
 
-export { loginResolver, registerResolver }
+const userResolver: Resolver<
+  User,
+  {},
+  ApolloContextType,
+  QueryUserArgs
+> = async (_, { id }, { db, user }) => {
+  const findUserById = (id: number) => findUserBy(db, { id })
+
+  try {
+    return await checkRightsAndResolve({
+      user,
+      expected: { id: id || 0, self: true },
+      controller: findUserById
+    })
+  } catch (err) {
+    return err
+  }
+}
+
+export { loginResolver, registerResolver, userResolver }
