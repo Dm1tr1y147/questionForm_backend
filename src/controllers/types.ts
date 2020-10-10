@@ -1,5 +1,8 @@
+import { AnswerType } from '@prisma/client'
 import {
+  Answer,
   ChoisesQuestion,
+  FormSubmission,
   InputQuestion,
   Variant
 } from '../typeDefs/typeDefs.gen'

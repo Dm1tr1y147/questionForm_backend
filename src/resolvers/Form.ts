@@ -5,13 +5,16 @@ import {
   getForms,
   createFormFrom
 } from '../controllers'
+import { submitAnswer } from '../controllers/form'
 import {
   Form,
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
   AnswerResolvers,
-  MutationCreateFormArgs
+  MutationCreateFormArgs,
+  ServerAnswer,
+  MutationFormSubmitArgs
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
@@ -67,21 +70,28 @@ const createForm: Resolver<
   {},
   ApolloContextType,
   MutationCreateFormArgs
-> = async (_, { questions, title }, { db, user }) => {
-  const createNewForm = (id: number) =>
-    createFormFrom(
-      db,
-      {
-        title,
-        questions
-      },
-      id
-    )
+> = async (_, params, { db, user }) => {
+  const createNewForm = (id: number) => createFormFrom(db, params, id)
 
   return await checkRightsAndResolve({
     user,
     expected: { id: 0, self: true },
     controller: createNewForm
+  })
+}
+
+const formSubmit: Resolver<
+  ServerAnswer,
+  {},
+  ApolloContextType,
+  MutationFormSubmitArgs
+> = async (_, params, { db, user }) => {
+  const submitNewAnswer = (userId: number) => submitAnswer(db, params, userId)
+
+  return await checkRightsAndResolve({
+    user,
+    expected: { id: 0, self: true },
+    controller: submitNewAnswer
   })
 }
 
@@ -103,4 +113,11 @@ const AnswerResolver: AnswerResolvers = {
   }
 }
 
-export { formQuery, formsQuery, QuestionResolver, AnswerResolver, createForm }
+export {
+  formQuery,
+  formsQuery,
+  QuestionResolver,
+  AnswerResolver,
+  createForm,
+  formSubmit
+}

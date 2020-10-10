@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { UserInputError } from 'apollo-server-express'
 import { newForm } from '../controllers/types'
-import { MutationRegisterArgs } from '../typeDefs/typeDefs.gen'
+import { Answer, MutationRegisterArgs } from '../typeDefs/typeDefs.gen'
 import { IFindUserParams } from './types'
 
 const getDBForm = async (db: PrismaClient, id: number) => {
@@ -95,8 +95,6 @@ const createDBForm = async (
   { title, inputQuestions, choisesQuestions }: newForm,
   id: number
 ) => {
-  console.log(title, inputQuestions, choisesQuestions)
-
   return await db.form.create({
     data: {
       author: { connect: { id } },
@@ -107,11 +105,39 @@ const createDBForm = async (
   })
 }
 
+const submitDBAnswer = async (
+  db: PrismaClient,
+  userId: number,
+  formId: number,
+  formAnswers: Answer[]
+) => {
+  const res = await db.formSubmission.create({
+    data: {
+      user: {
+        connect: {
+          id: userId
+        }
+      },
+      Form: {
+        connect: {
+          id: formId
+        }
+      },
+      answers: { create: formAnswers }
+    }
+  })
+
+  if (!res) throw new UserInputError("Can't submit form")
+
+  return { success: true }
+}
+
 export {
   getDBForm,
   getDBFormByUser,
   getDBFormAuthor,
   createDBUser,
   findDBUserBy,
-  createDBForm
+  createDBForm,
+  submitDBAnswer
 }

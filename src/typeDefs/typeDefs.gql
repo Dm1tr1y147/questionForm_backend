@@ -5,9 +5,10 @@ type Query {
 }
 
 type Mutation {
-  login(email: String!): LoginResult
-  register(name: String!, email: String!): LoginResult
+  login(email: String!): serverAnswer
+  register(name: String!, email: String!): serverAnswer
   createForm(title: String!, questions: String!): Form!
+  formSubmit(formId: Int!, answers: String!): serverAnswer
 }
 
 type Form {
@@ -47,18 +48,15 @@ type FormSubmission {
 }
 
 interface Answer {
-  id: Int!
   type: AnswerType!
 }
 
 type InputAnswer implements Answer {
-  id: Int!
   type: AnswerType!
   userInput: String
 }
 
 type ChoiseAnswer implements Answer {
-  id: Int!
   type: AnswerType!
   userChoise: Int!
 }
@@ -81,6 +79,6 @@ type User {
   forms: [Form!]
 }
 
-type LoginResult {
+type serverAnswer {
   success: Boolean!
 }

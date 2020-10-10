@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Answer } from '@prisma/client'
 import { ApolloError } from 'apollo-server-express'
 
-import { createDBForm, getDBForm, getDBFormByUser } from '../db'
+import { createDBForm, getDBForm, getDBFormByUser, submitDBAnswer } from '../db'
 import { FullForm } from '../db/types'
 import {
   ChoisesQuestion,
@@ -9,6 +9,7 @@ import {
   FormSubmission,
   InputQuestion,
   MutationCreateFormArgs,
+  MutationFormSubmitArgs,
   Question
 } from '../typeDefs/typeDefs.gen'
 
@@ -98,4 +99,14 @@ const createFormFrom = async (
   return createDBForm(db, newForm, id)
 }
 
-export { getForm, getForms, createFormFrom }
+const submitAnswer = async (
+  db: PrismaClient,
+  { answers, formId }: MutationFormSubmitArgs,
+  userId: number
+) => {
+  const parsedAnswers = <Answer[]>JSON.parse(answers)
+
+  return submitDBAnswer(db, userId, formId, parsedAnswers)
+}
+
+export { getForm, getForms, createFormFrom, submitAnswer }

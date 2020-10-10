@@ -1,27 +1,27 @@
-import { UserInputError } from 'apollo-server-express'
-
-import { checkRightsAndResolve, sendTokenEmail } from '../controllers'
-import { createDBUser, findDBUserBy } from '../db'
+import {
+  checkRightsAndResolve,
+  findUserBy,
+  sendTokenEmail
+} from '../controllers'
+import { createUser } from '../controllers/user'
 import {
   MutationLoginArgs,
   MutationRegisterArgs,
   Resolver,
-  LoginResult,
+  ServerAnswer,
   User,
   QueryUserArgs
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
 const loginResolver: Resolver<
-  LoginResult,
+  ServerAnswer,
   {},
   ApolloContextType,
   MutationLoginArgs
 > = async (_, { email }, { db }) => {
   try {
-    const user = await findDBUserBy(db, { email })
-
-    if (!user) throw new UserInputError('No such user')
+    const user = await findUserBy(db, { email })
 
     await sendTokenEmail(email, user)
 
@@ -32,13 +32,13 @@ const loginResolver: Resolver<
 }
 
 const registerResolver: Resolver<
-  LoginResult,
+  ServerAnswer,
   {},
   ApolloContextType,
   MutationRegisterArgs
 > = async (_, { email, name }, { db }) => {
   try {
-    const user = await createDBUser(db, { email, name })
+    const user = await createUser(db, { email, name })
 
     await sendTokenEmail(email, user)
 
@@ -54,7 +54,7 @@ const userResolver: Resolver<
   ApolloContextType,
   QueryUserArgs
 > = async (_, { id }, { db, user }) => {
-  const findUserById = (id: number) => findDBUserBy(db, { id })
+  const findUserById = (id: number) => findUserBy(db, { id })
 
   try {
     return await checkRightsAndResolve({

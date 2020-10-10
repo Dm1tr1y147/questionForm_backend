@@ -1,5 +1,6 @@
 import { getForm, getForms, createFormFrom } from './form'
 import { checkRightsAndResolve, getFormAuthor, sendTokenEmail } from './auth'
+import { findUserBy } from './user'
 
 export {
   checkRightsAndResolve,
@@ -7,5 +8,6 @@ export {
   getFormAuthor,
   getForms,
   createFormFrom,
-  sendTokenEmail
+  sendTokenEmail,
+  findUserBy
 }
