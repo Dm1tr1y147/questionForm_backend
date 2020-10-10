@@ -1,20 +1,19 @@
-import { ApolloContextType } from '../types'
 import { Resolvers } from '../typeDefs/typeDefs.gen'
 import {
   formQuery as form,
   QuestionResolver as Question,
   AnswerResolver as Answer,
   formsQuery as forms,
-  createForm,
-  formSubmit
+  createFormMutation as createForm,
+  formSubmitMutation as formSubmit
 } from './Form'
 import {
-  loginResolver as login,
-  registerResolver as register,
-  userResolver as user
+  loginMutation as login,
+  registerMutation as register,
+  userQuery as user
 } from './User'
 
-const resolvers: Resolvers<ApolloContextType> = {
+const resolvers: Resolvers = {
   Query: {
     form,
     forms,

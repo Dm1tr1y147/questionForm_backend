@@ -4,12 +4,13 @@ import {
   AuthenticationError,
   ForbiddenError
 } from 'apollo-server-express'
-import { CheckRightsAndResolve } from './types'
-import { getDBFormAuthor } from '../db'
 import { PrismaClient } from '@prisma/client'
-import { sendToken } from '../mailer'
 
 require('dotenv').config()
+
+import { CheckRightsAndResolve } from './types'
+import { getDBFormAuthor } from '../db'
+import { sendToken } from './mailer'
 
 const checkRightsAndResolve: CheckRightsAndResolve = async (params) => {
   const { user, expected, controller } = params
@@ -26,7 +27,7 @@ const checkRightsAndResolve: CheckRightsAndResolve = async (params) => {
 const getFormAuthor = async (db: PrismaClient, id: number) => {
   const author = await getDBFormAuthor(db, id)
 
-  if (!author) throw new ApolloError('Not found')
+  if (!author) throw new ApolloError('Not found', 'NOTFOUND')
 
   const authorId = author.author.id
 
@@ -40,7 +41,7 @@ const tokenGenerate = (email: string, id: number) => {
   })
 }
 
-const sendTokenEmail = async (
+const genAndSendToken = async (
   email: string,
   user: { id: number; name: string }
 ) => {
@@ -48,7 +49,8 @@ const sendTokenEmail = async (
 
   const res = await sendToken(user.name, email, token)
 
-  if (res[0].statusCode != 202) return new ApolloError("Couldn't send email")
+  if (res[0].statusCode != 202)
+    return new ApolloError("Couldn't send email", 'EMAILSENDERROR')
 }
 
-export { checkRightsAndResolve, getFormAuthor, sendTokenEmail, tokenGenerate }
+export { checkRightsAndResolve, getFormAuthor, genAndSendToken }

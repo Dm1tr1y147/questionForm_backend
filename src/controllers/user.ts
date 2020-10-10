@@ -2,27 +2,43 @@ import { createDBUser, findDBUserBy } from '../db'
 import { IFindUserParams } from '../db/types'
 import { MutationRegisterArgs, User } from '../typeDefs/typeDefs.gen'
 import { PrismaClient } from '@prisma/client'
-import { UserInputError } from 'apollo-server-express'
+import { ApolloError, UserInputError } from 'apollo-server-express'
 
 const createUser = async (
   db: PrismaClient,
   { email, name }: MutationRegisterArgs
 ): Promise<User> => {
-  if (!email || !name)
-    throw new UserInputError(
-      'Provide full user information',
-      [!email ? [email] : [], !name ? [name] : []].flat()
-    )
+  try {
+    if (!email || !name)
+      throw new UserInputError(
+        'Provide full user information',
+        [!email ? [email] : [], !name ? [name] : []].flat()
+      )
 
-  return await createDBUser(db, { email, name })
+    const newUser = await createDBUser(db, { email, name })
+
+    if (!newUser)
+      throw new ApolloError("Couldn't create user", 'USERCREATIONERROR')
+
+    return newUser
+  } catch (err) {
+    return err
+  }
 }
 
-const findUserBy = async (db: PrismaClient, params: IFindUserParams) => {
-  const user = await findDBUserBy(db, params)
+const findUserBy = async (
+  db: PrismaClient,
+  params: IFindUserParams
+): Promise<User> => {
+  try {
+    const user = await findDBUserBy(db, params)
 
-  if (!user) throw new UserInputError('No such user')
+    if (!user) throw new UserInputError('No such user')
 
-  return user
+    return user
+  } catch (err) {
+    return err
+  }
 }
 
 export { createUser, findUserBy }

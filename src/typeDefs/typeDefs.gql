@@ -5,7 +5,7 @@ type Query {
 }
 
 type Mutation {
-  createForm(title: String!, questions: String!): Form!
+  createForm(title: String!, questions: String!): serverAnswer
   formSubmit(formId: Int!, answers: String!): serverAnswer
   login(email: String!): serverAnswer
   register(name: String!, email: String!): serverAnswer

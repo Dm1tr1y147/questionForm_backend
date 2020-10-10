@@ -1,7 +1,7 @@
 import {
   checkRightsAndResolve,
   findUserBy,
-  sendTokenEmail
+  genAndSendToken
 } from '../controllers'
 import { createUser } from '../controllers/user'
 import {
@@ -14,7 +14,7 @@ import {
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
-const loginResolver: Resolver<
+const loginMutation: Resolver<
   ServerAnswer,
   {},
   ApolloContextType,
@@ -23,7 +23,7 @@ const loginResolver: Resolver<
   try {
     const user = await findUserBy(db, { email })
 
-    await sendTokenEmail(email, user)
+    await genAndSendToken(email, user)
 
     return { success: true }
   } catch (err) {
@@ -31,7 +31,7 @@ const loginResolver: Resolver<
   }
 }
 
-const registerResolver: Resolver<
+const registerMutation: Resolver<
   ServerAnswer,
   {},
   ApolloContextType,
@@ -40,7 +40,7 @@ const registerResolver: Resolver<
   try {
     const user = await createUser(db, { email, name })
 
-    await sendTokenEmail(email, user)
+    await genAndSendToken(email, user)
 
     return { success: true }
   } catch (err) {
@@ -48,15 +48,14 @@ const registerResolver: Resolver<
   }
 }
 
-const userResolver: Resolver<
-  User,
-  {},
-  ApolloContextType,
-  QueryUserArgs
-> = async (_, { id }, { db, user }) => {
-  const findUserById = (id: number) => findUserBy(db, { id })
-
+const userQuery: Resolver<User, {}, ApolloContextType, QueryUserArgs> = async (
+  _,
+  { id },
+  { db, user }
+) => {
   try {
+    const findUserById = (id: number) => findUserBy(db, { id })
+
     return await checkRightsAndResolve({
       controller: findUserById,
       expected: {
@@ -70,4 +69,4 @@ const userResolver: Resolver<
   }
 }
 
-export { loginResolver, registerResolver, userResolver }
+export { loginMutation, registerMutation, userQuery }

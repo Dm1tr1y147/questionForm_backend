@@ -66,8 +66,8 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
   }
 }
 
-const createForm: Resolver<
-  Form,
+const createFormMutation: Resolver<
+  ServerAnswer,
   {},
   ApolloContextType,
   MutationCreateFormArgs
@@ -84,7 +84,7 @@ const createForm: Resolver<
   })
 }
 
-const formSubmit: Resolver<
+const formSubmitMutation: Resolver<
   ServerAnswer,
   {},
   ApolloContextType,
@@ -122,9 +122,9 @@ const AnswerResolver: AnswerResolvers = {
 
 export {
   AnswerResolver,
-  createForm,
+  createFormMutation,
   formQuery,
   formsQuery,
-  formSubmit,
+  formSubmitMutation,
   QuestionResolver
 }

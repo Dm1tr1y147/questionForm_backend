@@ -1,8 +1,8 @@
+import { PrismaClient } from '@prisma/client'
+
 import { Answer, MutationRegisterArgs } from '../typeDefs/typeDefs.gen'
 import { IFindUserParams } from './types'
-import { newForm } from '../controllers/types'
-import { PrismaClient } from '@prisma/client'
-import { UserInputError } from 'apollo-server-express'
+import { FormConstructor } from '../controllers/types'
 
 /**
  * Get form from DataBase
@@ -14,15 +14,18 @@ import { UserInputError } from 'apollo-server-express'
  * @example
  * const form = await getDBForm(db, id, true)
  */
-const getDBForm = async (
+const getDBForm = (
   db: PrismaClient,
   formId: number,
-  user?: {
+  {
+    requesterId,
+    userId
+  }: {
     requesterId: number
     userId: number
   }
-) => {
-  return await db.form.findOne({
+) =>
+  db.form.findOne({
     include: {
       author: {
         select: {
@@ -42,10 +45,10 @@ const getDBForm = async (
           answers: true
         },
         where:
-          user?.requesterId != user?.userId
+          requesterId != userId
             ? {
                 user: {
-                  id: user?.requesterId
+                  id: requesterId
                 }
               }
             : undefined
@@ -55,7 +58,6 @@ const getDBForm = async (
       id: formId
     }
   })
-}
 
 /**
  * Get all forms of user
@@ -64,8 +66,8 @@ const getDBForm = async (
  * @example
  * const forms = await getDBFormsByUser(db, userId)
  */
-const getDBFormsByUser = async (db: PrismaClient, id: number) => {
-  return await db.form.findMany({
+const getDBFormsByUser = (db: PrismaClient, id: number) =>
+  db.form.findMany({
     include: {
       choisesQuestions: {
         include: {
@@ -85,10 +87,9 @@ const getDBFormsByUser = async (db: PrismaClient, id: number) => {
       }
     }
   })
-}
 
-const getDBFormAuthor = async (db: PrismaClient, id: number) => {
-  return await db.form.findOne({
+const getDBFormAuthor = (db: PrismaClient, id: number) =>
+  db.form.findOne({
     select: {
       author: {
         select: {
@@ -100,52 +101,39 @@ const getDBFormAuthor = async (db: PrismaClient, id: number) => {
       id
     }
   })
-}
 
-const createDBUser = async (
+const createDBUser = (
   db: PrismaClient,
   { email, name }: MutationRegisterArgs
-) => {
-  return await db.user.create({
+) =>
+  db.user.create({
     data: { email, name }
   })
-}
 
-const findDBUserBy = async (db: PrismaClient, params: IFindUserParams) => {
-  const user = await db.user.findOne({
+const findDBUserBy = (db: PrismaClient, params: IFindUserParams) =>
+  db.user.findOne({
     where: {
       ...params
     }
   })
-  if (!user) throw new UserInputError('Not found')
 
-  return user
-}
-
-const createDBForm = async (
-  db: PrismaClient,
-  { title, inputQuestions, choisesQuestions }: newForm,
-  id: number
-) => {
-  return await db.form.create({
+const createDBForm = (db: PrismaClient, form: FormConstructor, id: number) =>
+  db.form.create({
     data: {
       author: {
         connect: { id }
       },
-      choisesQuestions,
-      inputQuestions,
-      title
+      ...form
     }
   })
-}
 
-const submitDBAnswer = async (
+const submitDBAnswer = (
   db: PrismaClient,
   userId: number,
   formId: number,
   formAnswers: Answer[]
-) => {
-  const res = await db.formSubmission.create({
+) =>
+  db.formSubmission.create({
     data: {
       answers: {
         create: formAnswers
@@ -162,11 +150,6 @@ const submitDBAnswer = async (
       }
     }
   })
-
-  if (!res) throw new UserInputError("Can't submit form")
-
-  return { success: true }
-}
 
 export {
   createDBForm,
