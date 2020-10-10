@@ -1,8 +1,5 @@
-import { PrismaClient, Answer } from '@prisma/client'
+import { Answer, PrismaClient } from '@prisma/client'
 import { ApolloError } from 'apollo-server-express'
-
-import { createDBForm, getDBForm, getDBFormByUser, submitDBAnswer } from '../db'
-import { FullForm } from '../db/types'
 import {
   ChoisesQuestion,
   Form as GraphqlForm,
@@ -12,44 +9,55 @@ import {
   MutationFormSubmitArgs,
   Question
 } from '../typeDefs/typeDefs.gen'
-
 import { createChoises, newForm } from './types'
+import {
+  createDBForm,
+  getDBForm,
+  getDBFormsByUser,
+  submitDBAnswer
+} from '../db'
 
-const getForm = async (db: PrismaClient, id: number) => {
-  const dbForm: FullForm = await getDBForm(db, id)
+const getForm = async (
+  db: PrismaClient,
+  id: number,
+  user: { requesterId: number; userId: number }
+) => {
+  const dbForm = await getDBForm(db, id, user)
 
   if (dbForm == null) throw new ApolloError('Not found')
 
   const form: GraphqlForm = {
-    id: dbForm.id,
-    title: dbForm.title,
-    questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions],
+    author: dbForm.author,
     dateCreated: dbForm.dateCreated.toString(),
-    submissions: dbForm.submissions.map<FormSubmission>((submission) => ({
-      answers: submission.answers,
-      date: submission.date.toString(),
-      id: submission.id
-    })),
-    author: dbForm.author
+    id: dbForm.id,
+    questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions],
+    submissions: user.requesterId
+      ? dbForm.submissions.map((submission) => ({
+          answers: submission.answers,
+          date: submission.date.toString(),
+          id: submission.id
+        }))
+      : undefined,
+    title: dbForm.title
   }
 
   return form
 }
 
 const getForms = async (db: PrismaClient, userId: number) => {
-  const dbForms = await getDBFormByUser(db, userId)
+  const dbForms = await getDBFormsByUser(db, userId)
 
   const forms = [
     ...dbForms.map((form) => ({
-      id: form.id,
-      title: form.title,
-      questions: [...form.choisesQuestions, ...form.inputQuestions],
       dateCreated: form.dateCreated.toString(),
+      id: form.id,
+      questions: [...form.choisesQuestions, ...form.inputQuestions],
       submissions: form.submissions.map<FormSubmission>((submission) => ({
         answers: submission.answers,
         date: submission.date.toString(),
         id: submission.id
-      }))
+      })),
+      title: form.title
     }))
   ]
 
@@ -63,7 +71,28 @@ const createFormFrom = async (
 ) => {
   const parsedQuestions = <Question[]>JSON.parse(params.questions)
   const newForm: newForm = {
-    title: params.title,
+    choisesQuestions: {
+      create: parsedQuestions.flatMap<createChoises>(
+        (val: InputQuestion | ChoisesQuestion, index) => {
+          if ('type' in val) {
+            return [
+              {
+                number: index,
+                title: val.title,
+                type: val.type,
+                variants: {
+                  create: val.variants
+                }
+              }
+            ]
+          }
+
+          {
+            return []
+          }
+        }
+      )
+    },
     inputQuestions: {
       create: parsedQuestions.filter(
         (val: InputQuestion | ChoisesQuestion, index) => {
@@ -75,25 +104,7 @@ const createFormFrom = async (
         }
       )
     },
-    choisesQuestions: {
-      create: parsedQuestions.flatMap<createChoises>(
-        (val: InputQuestion | ChoisesQuestion, index) => {
-          if ('type' in val) {
-            return [
-              {
-                number: index,
-                title: val.title,
-                type: val.type,
-                variants: { create: val.variants }
-              }
-            ]
-          }
-          {
-            return []
-          }
-        }
-      )
-    }
+    title: params.title
   }
 
   return createDBForm(db, newForm, id)
@@ -109,4 +120,4 @@ const submitAnswer = async (
   return submitDBAnswer(db, userId, formId, parsedAnswers)
 }
 
-export { getForm, getForms, createFormFrom, submitAnswer }
+export { createFormFrom, getForm, getForms, submitAnswer }

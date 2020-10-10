@@ -58,9 +58,12 @@ const userResolver: Resolver<
 
   try {
     return await checkRightsAndResolve({
-      user,
-      expected: { id: id || 0, self: true },
-      controller: findUserById
+      controller: findUserById,
+      expected: {
+        id: id || 0,
+        self: true
+      },
+      user
     })
   } catch (err) {
     return err

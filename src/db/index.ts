@@ -1,20 +1,34 @@
-import { PrismaClient } from '@prisma/client'
-import { UserInputError } from 'apollo-server-express'
-import { newForm } from '../controllers/types'
 import { Answer, MutationRegisterArgs } from '../typeDefs/typeDefs.gen'
 import { IFindUserParams } from './types'
+import { newForm } from '../controllers/types'
+import { PrismaClient } from '@prisma/client'
+import { UserInputError } from 'apollo-server-express'
 
-const getDBForm = async (db: PrismaClient, id: number) => {
+/**
+ * Get form from DataBase
+ *
+ * @async
+ * @param db {PrismaClient} Prisma client object
+ * @param formId {number} Form ID
+ * @param getSubmissions {boolean} Set to true if want to also get form submissions
+ * @example
+ * const form = await getDBForm(db, id, true)
+ */
+const getDBForm = async (
+  db: PrismaClient,
+  formId: number,
+  user?: {
+    requesterId: number
+    userId: number
+  }
+) => {
   return await db.form.findOne({
-    where: {
-      id
-    },
     include: {
       author: {
         select: {
+          email: true,
           id: true,
-          name: true,
-          email: true
+          name: true
         }
       },
       choisesQuestions: {
@@ -26,19 +40,32 @@ const getDBForm = async (db: PrismaClient, id: number) => {
       submissions: {
         include: {
           answers: true
-        }
+        },
+        where:
+          user?.requesterId != user?.userId
+            ? {
+                user: {
+                  id: user?.requesterId
+                }
+              }
+            : undefined
       }
+    },
+    where: {
+      id: formId
     }
   })
 }
 
-const getDBFormByUser = async (db: PrismaClient, id: number) => {
+/**
+ * Get all forms of user
+ * @param db {PrismaClient} Prisma client object
+ * @param id {number} User ID
+ * @example
+ * const forms = await getDBFormsByUser(db, userId)
+ */
+const getDBFormsByUser = async (db: PrismaClient, id: number) => {
   return await db.form.findMany({
-    where: {
-      author: {
-        id
-      }
-    },
     include: {
       choisesQuestions: {
         include: {
@@ -50,6 +77,11 @@ const getDBFormByUser = async (db: PrismaClient, id: number) => {
         include: {
           answers: true
         }
+      }
+    },
+    where: {
+      author: {
+        id
       }
     }
   })
@@ -57,15 +89,15 @@ const getDBFormByUser = async (db: PrismaClient, id: number) => {
 
 const getDBFormAuthor = async (db: PrismaClient, id: number) => {
   return await db.form.findOne({
-    where: {
-      id
-    },
     select: {
       author: {
         select: {
           id: true
         }
       }
+    },
+    where: {
+      id
     }
   })
 }
@@ -97,10 +129,12 @@ const createDBForm = async (
 ) => {
   return await db.form.create({
     data: {
-      author: { connect: { id } },
-      title,
+      author: {
+        connect: { id }
+      },
       choisesQuestions,
-      inputQuestions
+      inputQuestions,
+      title
     }
   })
 }
@@ -113,17 +147,19 @@ const submitDBAnswer = async (
 ) => {
   const res = await db.formSubmission.create({
     data: {
-      user: {
-        connect: {
-          id: userId
-        }
+      answers: {
+        create: formAnswers
       },
       Form: {
         connect: {
           id: formId
         }
       },
-      answers: { create: formAnswers }
+      user: {
+        connect: {
+          id: userId
+        }
+      }
     }
   })
 
@@ -133,11 +169,11 @@ const submitDBAnswer = async (
 }
 
 export {
-  getDBForm,
-  getDBFormByUser,
-  getDBFormAuthor,
+  createDBForm,
   createDBUser,
   findDBUserBy,
-  createDBForm,
+  getDBForm,
+  getDBFormAuthor,
+  getDBFormsByUser,
   submitDBAnswer
 }

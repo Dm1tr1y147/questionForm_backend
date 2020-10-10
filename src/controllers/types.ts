@@ -1,8 +1,5 @@
-import { AnswerType } from '@prisma/client'
 import {
-  Answer,
   ChoisesQuestion,
-  FormSubmission,
   InputQuestion,
   Variant
 } from '../typeDefs/typeDefs.gen'
@@ -14,9 +11,9 @@ type expectedType = {
 }
 
 interface ICheckRightsAndResolve<T> {
-  user: JwtPayloadType | null
-  expected: expectedType
   controller: T
+  expected: expectedType
+  user: JwtPayloadType | null
 }
 
 type CheckRightsAndResolve = <ReturnType, ControllerType extends Function>(
@@ -24,15 +21,15 @@ type CheckRightsAndResolve = <ReturnType, ControllerType extends Function>(
 ) => Promise<ReturnType>
 
 type newForm = {
-  title: string
   choisesQuestions: {
     create: createChoises[]
   }
   inputQuestions: { create: InputQuestion[] }
+  title: string
 }
 
 type createChoises = Omit<ChoisesQuestion, 'variants'> & {
   variants: { create: Variant[] }
 }
 
-export { CheckRightsAndResolve, newForm, createChoises }
+export { CheckRightsAndResolve, createChoises, newForm }

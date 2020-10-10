@@ -1,22 +1,22 @@
 import {
-  checkRightsAndResolve,
-  getForm,
-  getFormAuthor,
-  getForms,
-  createFormFrom
-} from '../controllers'
-import { submitAnswer } from '../controllers/form'
-import {
+  AnswerResolvers,
   Form,
+  MutationCreateFormArgs,
+  MutationFormSubmitArgs,
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
-  AnswerResolvers,
-  MutationCreateFormArgs,
-  ServerAnswer,
-  MutationFormSubmitArgs
+  ServerAnswer
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
+import {
+  checkRightsAndResolve,
+  createFormFrom,
+  getForm,
+  getFormAuthor,
+  getForms,
+  submitAnswer
+} from '../controllers'
 
 const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   _,
@@ -24,17 +24,18 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   { db, user }
 ) => {
   try {
-    const authorId = await getFormAuthor(db, id)
+    const ownerId = await getFormAuthor(db, id)
 
-    const getFormById = () => getForm(db, id)
+    const getFormById = (userId: number) =>
+      getForm(db, id, { requesterId: userId, userId: ownerId })
 
     return await checkRightsAndResolve({
-      user,
+      controller: getFormById,
       expected: {
         id: 0,
-        self: false
+        self: true
       },
-      controller: getFormById
+      user
     })
   } catch (err) {
     return err
@@ -53,12 +54,12 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
       Form[],
       (userId: number) => Promise<Form[] | null>
     >({
-      user,
+      controller: getFormsByUserId,
       expected: {
         id: 0,
         self: true
       },
-      controller: getFormsByUserId
+      user
     })
   } catch (err) {
     return err
@@ -74,9 +75,12 @@ const createForm: Resolver<
   const createNewForm = (id: number) => createFormFrom(db, params, id)
 
   return await checkRightsAndResolve({
-    user,
-    expected: { id: 0, self: true },
-    controller: createNewForm
+    controller: createNewForm,
+    expected: {
+      id: 0,
+      self: true
+    },
+    user
   })
 }
 
@@ -89,9 +93,12 @@ const formSubmit: Resolver<
   const submitNewAnswer = (userId: number) => submitAnswer(db, params, userId)
 
   return await checkRightsAndResolve({
-    user,
-    expected: { id: 0, self: true },
-    controller: submitNewAnswer
+    controller: submitNewAnswer,
+    expected: {
+      id: 0,
+      self: true
+    },
+    user
   })
 }
 
@@ -114,10 +121,10 @@ const AnswerResolver: AnswerResolvers = {
 }
 
 export {
-  formQuery,
-  formsQuery,
-  QuestionResolver,
   AnswerResolver,
   createForm,
-  formSubmit
+  formQuery,
+  formsQuery,
+  formSubmit,
+  QuestionResolver
 }

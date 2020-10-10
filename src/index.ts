@@ -1,40 +1,43 @@
-import { ApolloServer, makeExecutableSchema } from 'apollo-server-express'
 import express from 'express'
 import expressJwt from 'express-jwt'
+import resolvers from './resolvers'
+import typeDefs from './typeDefs'
+import { ApolloContextType, JwtPayloadType } from './types'
+import { ApolloServer, makeExecutableSchema } from 'apollo-server-express'
 import { PrismaClient } from '@prisma/client'
 
 require('dotenv').config()
-
-import typeDefs from './typeDefs'
-import resolvers from './resolvers'
-import { ApolloContextType, JwtPayloadType } from './types'
 
 const app = express()
 
 app.use(
   expressJwt({
-    secret: '' + process.env.JWT_SECRET,
+    algorithms: ['HS256'],
     credentialsRequired: false,
-    algorithms: ['HS256']
+    secret: '' + process.env.JWT_SECRET
   })
 )
 
 const server = new ApolloServer({
-  schema: makeExecutableSchema({
-    typeDefs,
-    resolvers
-  }),
   context: async ({
     req
   }: {
-    req: Request & { user: JwtPayloadType }
+    req: Request & {
+      user: JwtPayloadType
+    }
   }): Promise<ApolloContextType> => {
     const db = new PrismaClient()
     const user = req.user || null
-
-    return { db, user }
+    return {
+      db,
+      user
+    }
   },
-  debug: false
+  debug: false,
+  schema: makeExecutableSchema({
+    resolvers,
+    typeDefs
+  })
 })
 
 server.applyMiddleware({ app })

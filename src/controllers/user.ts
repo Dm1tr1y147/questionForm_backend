@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client'
-import { UserInputError } from 'apollo-server-express'
-
 import { createDBUser, findDBUserBy } from '../db'
 import { IFindUserParams } from '../db/types'
 import { MutationRegisterArgs, User } from '../typeDefs/typeDefs.gen'
+import { PrismaClient } from '@prisma/client'
+import { UserInputError } from 'apollo-server-express'
 
 const createUser = async (
   db: PrismaClient,

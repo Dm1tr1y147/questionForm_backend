@@ -1,16 +1,15 @@
-import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken'
 import {
   ApolloError,
   AuthenticationError,
   ForbiddenError
 } from 'apollo-server-express'
-import jwt from 'jsonwebtoken'
+import { CheckRightsAndResolve } from './types'
+import { getDBFormAuthor } from '../db'
+import { PrismaClient } from '@prisma/client'
+import { sendToken } from '../mailer'
 
 require('dotenv').config()
-
-import { getDBFormAuthor } from '../db'
-import { sendToken } from '../mailer'
-import { CheckRightsAndResolve } from './types'
 
 const checkRightsAndResolve: CheckRightsAndResolve = async (params) => {
   const { user, expected, controller } = params
@@ -36,8 +35,8 @@ const getFormAuthor = async (db: PrismaClient, id: number) => {
 
 const tokenGenerate = (email: string, id: number) => {
   return jwt.sign({ email, id }, '' + process.env.JWT_SECRET, {
-    expiresIn: '7 days',
-    algorithm: 'HS256'
+    algorithm: 'HS256',
+    expiresIn: '7 days'
   })
 }
 
@@ -52,4 +51,4 @@ const sendTokenEmail = async (
   if (res[0].statusCode != 202) return new ApolloError("Couldn't send email")
 }
 
-export { checkRightsAndResolve, getFormAuthor, tokenGenerate, sendTokenEmail }
+export { checkRightsAndResolve, getFormAuthor, sendTokenEmail, tokenGenerate }

@@ -1,5 +1,5 @@
-import { PromiseReturnType } from '@prisma/client'
 import { getDBForm } from '../db'
+import { PromiseReturnType } from '@prisma/client'
 
 type FullForm = PromiseReturnType<typeof getDBForm>
 

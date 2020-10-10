@@ -1,35 +1,35 @@
 type Query {
-  forms: [Form!]!
   form(id: Int!): Form
+  forms: [Form!]!
   user(id: Int): User
 }
 
 type Mutation {
-  login(email: String!): serverAnswer
-  register(name: String!, email: String!): serverAnswer
   createForm(title: String!, questions: String!): Form!
   formSubmit(formId: Int!, answers: String!): serverAnswer
+  login(email: String!): serverAnswer
+  register(name: String!, email: String!): serverAnswer
 }
 
 type Form {
-  id: Int!
-  title: String!
-  questions: [Question!]!
-  submissions: [FormSubmission!]!
-  dateCreated: String!
   author: User
+  dateCreated: String!
+  id: Int!
+  questions: [Question!]!
+  submissions: [FormSubmission!]
+  title: String!
 }
 
 interface Question {
-  title: String!
   number: Int!
+  title: String!
 }
 
 type ChoisesQuestion implements Question {
-  title: String!
-  variants: [Variant!]!
-  type: ChoiseType!
   number: Int!
+  title: String!
+  type: ChoiseType!
+  variants: [Variant!]!
 }
 
 type Variant {
@@ -37,14 +37,14 @@ type Variant {
 }
 
 type InputQuestion implements Question {
-  title: String!
   number: Int!
+  title: String!
 }
 
 type FormSubmission {
-  id: Int!
   answers: [Answer!]!
   date: String!
+  id: Int!
 }
 
 interface Answer {
@@ -62,21 +62,21 @@ type ChoiseAnswer implements Answer {
 }
 
 enum ChoiseType {
-  SELECT
   CHECK
   CHOOSE
+  SELECT
 }
 
 enum AnswerType {
-  INPUT
   CHOISE
+  INPUT
 }
 
 type User {
-  name: String!
   email: String!
-  id: Int!
   forms: [Form!]
+  id: Int!
+  name: String!
 }
 
 type serverAnswer {
