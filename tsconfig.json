@@ -4,11 +4,13 @@
     "module": "CommonJS" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     "strict": true /* Enable all strict type-checking options. */,
     "outDir": "dist",
+    "noImplicitAny": true,
     "moduleResolution": "Node",
+    "baseUrl": "src",
     "incremental": true,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["src"]
+  "include": ["src/**/*"]
 }

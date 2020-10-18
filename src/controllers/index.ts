@@ -10,5 +10,5 @@ export {
   getForm,
   getFormAuthor,
   getForms,
-  submitAnswer
+  submitAnswer,
 }

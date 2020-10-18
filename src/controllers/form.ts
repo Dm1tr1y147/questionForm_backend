@@ -1,33 +1,35 @@
-import { Answer as DbAnswer, PrismaClient } from '@prisma/client'
+import { Answer as DbAnswer, PrismaClient, Form } from '@prisma/client'
 import { ApolloError, UserInputError } from 'apollo-server-express'
 
 import {
-  Form,
+  ChoisesQuestion,
   Form as GraphqlForm,
+  FormSubmission,
   InputQuestion,
   MutationCreateFormArgs,
   MutationFormSubmitArgs,
-  ServerAnswer
+  ServerAnswer,
+  Variant,
 } from '../typeDefs/typeDefs.gen'
 import {
   CreateChoises,
   FormConstructor,
   UploadedChoisesQuestion,
   UploadedInputQuestion,
-  UploadedQuestion
+  UploadedQuestion,
 } from './types'
 import {
   createDBForm,
   getDBForm,
   getDBFormsByUser,
-  submitDBAnswer
+  submitDBAnswer,
 } from '../db'
 
 const getForm = async (
   db: PrismaClient,
   id: number,
   user: { requesterId: number; userId: number }
-): Promise<Form> => {
+): Promise<GraphqlForm> => {
   try {
     const dbForm = await getDBForm(db, id, user)
 
@@ -41,9 +43,9 @@ const getForm = async (
       submissions: dbForm.submissions.map((submission) => ({
         answers: submission.answers,
         date: submission.date.toString(),
-        id: submission.id
+        id: submission.id,
       })),
-      title: dbForm.title
+      title: dbForm.title,
     }
 
     return form
@@ -52,22 +54,25 @@ const getForm = async (
   }
 }
 
-const getForms = async (db: PrismaClient, userId: number): Promise<Form[]> => {
+const getForms = async (
+  db: PrismaClient,
+  userId: number
+): Promise<GraphqlForm[]> => {
   try {
     const dbForms = await getDBFormsByUser(db, userId)
 
     if (!dbForms) throw new ApolloError("Couldn't load forms", 'FETCHINGERROR')
 
-    const forms: Form[] = dbForms.map((form) => ({
+    const forms: GraphqlForm[] = dbForms.map((form) => ({
       dateCreated: form.dateCreated.toString(),
       id: form.id,
       questions: [...form.choisesQuestions, ...form.inputQuestions],
       submissions: form.submissions.map((submission) => ({
         answers: submission.answers,
         date: submission.date.toString(),
-        id: submission.id
+        id: submission.id,
       })),
-      title: form.title
+      title: form.title,
     }))
 
     return forms
@@ -95,12 +100,12 @@ const createFormFrom = async (
                     title: uQuestion.title,
                     type: uQuestion.type,
                     variants: {
-                      create: uQuestion.variants
-                    }
-                  }
+                      create: uQuestion.variants,
+                    },
+                  },
                 ]
               : []
-        )
+        ),
       },
       inputQuestions: {
         create: parsedQuestions.flatMap<InputQuestion>(
@@ -108,9 +113,9 @@ const createFormFrom = async (
             !('type' in uQuestion)
               ? [{ number: index, title: uQuestion.title }]
               : []
-        )
+        ),
       },
-      title: params.title
+      title: params.title,
     }
 
     const res = await createDBForm(db, newForm, id)
@@ -142,4 +147,25 @@ const submitAnswer = async (
   }
 }
 
-export { createFormFrom, getForm, getForms, submitAnswer }
+const formatForms = (
+  forms: (Form & {
+    choisesQuestions: (ChoisesQuestion & {
+      variants: Variant[]
+    })[]
+    inputQuestions: InputQuestion[]
+    submissions: (Omit<FormSubmission, 'date'> & { date: Date })[]
+  })[]
+) =>
+  forms.map((form) => ({
+    dateCreated: form.dateCreated.toString(),
+    id: form.id,
+    questions: [...form.choisesQuestions, ...form.inputQuestions],
+    submissions: form.submissions.map((submission) => ({
+      answers: submission.answers,
+      date: submission.date.toString(),
+      id: submission.id,
+    })),
+    title: form.title,
+  }))
+
+export { createFormFrom, getForm, getForms, submitAnswer, formatForms }

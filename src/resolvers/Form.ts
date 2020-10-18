@@ -6,7 +6,7 @@ import {
   QueryFormArgs,
   QuestionResolvers,
   Resolver,
-  ServerAnswer
+  ServerAnswer,
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 import {
@@ -15,7 +15,7 @@ import {
   getForm,
   getFormAuthor,
   getForms,
-  submitAnswer
+  submitAnswer,
 } from '../controllers'
 
 const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
@@ -33,9 +33,9 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
       controller: getFormById,
       expected: {
         id: 0,
-        self: true
+        self: true,
       },
-      user
+      user,
     })
   } catch (err) {
     return err
@@ -57,9 +57,9 @@ const formsQuery: Resolver<Form[], {}, ApolloContextType> = async (
       controller: getFormsByUserId,
       expected: {
         id: 0,
-        self: true
+        self: true,
       },
-      user
+      user,
     })
   } catch (err) {
     return err
@@ -78,9 +78,9 @@ const createFormMutation: Resolver<
     controller: createNewForm,
     expected: {
       id: 0,
-      self: true
+      self: true,
     },
-    user
+    user,
   })
 }
 
@@ -96,9 +96,9 @@ const formSubmitMutation: Resolver<
     controller: submitNewAnswer,
     expected: {
       id: 0,
-      self: true
+      self: true,
     },
-    user
+    user,
   })
 }
 
@@ -108,7 +108,7 @@ const QuestionResolver: QuestionResolvers = {
       return 'ChoisesQuestion'
     }
     return 'InputQuestion'
-  }
+  },
 }
 
 const AnswerResolver: AnswerResolvers = {
@@ -117,7 +117,7 @@ const AnswerResolver: AnswerResolvers = {
     if (obj.type == 'INPUT') return 'InputAnswer'
 
     return null
-  }
+  },
 }
 
 export {
@@ -126,5 +126,5 @@ export {
   formQuery,
   formsQuery,
   formSubmitMutation,
-  QuestionResolver
+  QuestionResolver,
 }

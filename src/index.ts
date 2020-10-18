@@ -14,30 +14,31 @@ app.use(
   expressJwt({
     algorithms: ['HS256'],
     credentialsRequired: false,
-    secret: '' + process.env.JWT_SECRET
+    secret: '' + process.env.JWT_SECRET,
   })
 )
 
+const db = new PrismaClient()
+
 const server = new ApolloServer({
   context: async ({
-    req
+    req,
   }: {
     req: Request & {
       user: JwtPayloadType
     }
   }): Promise<ApolloContextType> => {
-    const db = new PrismaClient()
     const user = req.user || null
     return {
       db,
-      user
+      user,
     }
   },
   debug: false,
   schema: makeExecutableSchema({
     resolvers,
-    typeDefs
-  })
+    typeDefs,
+  }),
 })
 
 server.applyMiddleware({ app })

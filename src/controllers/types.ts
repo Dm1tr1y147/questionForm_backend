@@ -2,7 +2,7 @@ import { ChoiseType } from '@prisma/client'
 import {
   ChoisesQuestion,
   InputQuestion,
-  Variant
+  Variant,
 } from '../typeDefs/typeDefs.gen'
 import { JwtPayloadType } from '../types'
 
@@ -48,5 +48,5 @@ export {
   FormConstructor,
   UploadedChoisesQuestion,
   UploadedInputQuestion,
-  UploadedQuestion
+  UploadedQuestion,
 }

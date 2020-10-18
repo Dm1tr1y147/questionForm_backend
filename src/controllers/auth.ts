@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import {
   ApolloError,
   AuthenticationError,
-  ForbiddenError
+  ForbiddenError,
 } from 'apollo-server-express'
 import { PrismaClient } from '@prisma/client'
 
@@ -37,7 +37,7 @@ const getFormAuthor = async (db: PrismaClient, id: number) => {
 const tokenGenerate = (email: string, id: number) => {
   return jwt.sign({ email, id }, '' + process.env.JWT_SECRET, {
     algorithm: 'HS256',
-    expiresIn: '7 days'
+    expiresIn: '7 days',
   })
 }
 

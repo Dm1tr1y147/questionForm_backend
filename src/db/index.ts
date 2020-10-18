@@ -19,7 +19,7 @@ const getDBForm = (
   formId: number,
   {
     requesterId,
-    userId
+    userId,
   }: {
     requesterId: number
     userId: number
@@ -31,32 +31,32 @@ const getDBForm = (
         select: {
           email: true,
           id: true,
-          name: true
-        }
+          name: true,
+        },
       },
       choisesQuestions: {
         include: {
-          variants: true
-        }
+          variants: true,
+        },
       },
       inputQuestions: true,
       submissions: {
         include: {
-          answers: true
+          answers: true,
         },
         where:
           requesterId != userId
             ? {
                 user: {
-                  id: requesterId
-                }
+                  id: requesterId,
+                },
               }
-            : undefined
-      }
+            : undefined,
+      },
     },
     where: {
-      id: formId
-    }
+      id: formId,
+    },
   })
 
 /**
@@ -71,21 +71,21 @@ const getDBFormsByUser = (db: PrismaClient, id: number) =>
     include: {
       choisesQuestions: {
         include: {
-          variants: true
-        }
+          variants: true,
+        },
       },
       inputQuestions: true,
       submissions: {
         include: {
-          answers: true
-        }
-      }
+          answers: true,
+        },
+      },
     },
     where: {
       author: {
-        id
-      }
-    }
+        id,
+      },
+    },
   })
 
 const getDBFormAuthor = (db: PrismaClient, id: number) =>
@@ -93,13 +93,13 @@ const getDBFormAuthor = (db: PrismaClient, id: number) =>
     select: {
       author: {
         select: {
-          id: true
-        }
-      }
+          id: true,
+        },
+      },
     },
     where: {
-      id
-    }
+      id,
+    },
   })
 
 const createDBUser = (
@@ -107,24 +107,46 @@ const createDBUser = (
   { email, name }: MutationRegisterArgs
 ) =>
   db.user.create({
-    data: { email, name }
+    data: { email, name },
   })
 
 const findDBUserBy = (db: PrismaClient, params: IFindUserParams) =>
   db.user.findOne({
     where: {
-      ...params
-    }
+      ...params,
+    },
+    include: {
+      forms: {
+        include: {
+          choisesQuestions: {
+            include: {
+              variants: true,
+            },
+          },
+          inputQuestions: true,
+          submissions: {
+            include: {
+              answers: true,
+            },
+          },
+        },
+      },
+      formsSubmissions: {
+        include: {
+          answers: true,
+        },
+      },
+    },
   })
 
 const createDBForm = (db: PrismaClient, form: FormConstructor, id: number) =>
   db.form.create({
     data: {
       author: {
-        connect: { id }
+        connect: { id },
       },
-      ...form
-    }
+      ...form,
+    },
   })
 
 const submitDBAnswer = (
@@ -136,19 +158,19 @@ const submitDBAnswer = (
   db.formSubmission.create({
     data: {
       answers: {
-        create: formAnswers
+        create: formAnswers,
       },
       Form: {
         connect: {
-          id: formId
-        }
+          id: formId,
+        },
       },
       user: {
         connect: {
-          id: userId
-        }
-      }
-    }
+          id: userId,
+        },
+      },
+    },
   })
 
 export {
@@ -158,5 +180,5 @@ export {
   getDBForm,
   getDBFormAuthor,
   getDBFormsByUser,
-  submitDBAnswer
+  submitDBAnswer,
 }

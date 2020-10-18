@@ -9,12 +9,12 @@ const sendToken = (username: string, email: string, token: string) => {
     dynamicTemplateData: {
       siteUrl: process.env.SITE_URL,
       token: token,
-      username: username
+      username: username,
     },
     from: 'me@dmitriy.icu',
     subject: 'Login link',
     templateId: 'd-a9275a4437bf4dd2b9e858f3a57f85d5',
-    to: email
+    to: email,
   })
 }
 

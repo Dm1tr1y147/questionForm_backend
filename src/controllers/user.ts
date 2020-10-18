@@ -3,6 +3,7 @@ import { IFindUserParams } from '../db/types'
 import { MutationRegisterArgs, User } from '../typeDefs/typeDefs.gen'
 import { PrismaClient } from '@prisma/client'
 import { ApolloError, UserInputError } from 'apollo-server-express'
+import { formatForms } from './form'
 
 const createUser = async (
   db: PrismaClient,
@@ -31,9 +32,14 @@ const findUserBy = async (
   params: IFindUserParams
 ): Promise<User> => {
   try {
-    const user = await findDBUserBy(db, params)
+    const dbUser = await findDBUserBy(db, params)
 
-    if (!user) throw new UserInputError('No such user')
+    if (!dbUser) throw new UserInputError('No such user')
+
+    const user = {
+      ...dbUser,
+      forms: formatForms(dbUser.forms),
+    }
 
     return user
   } catch (err) {

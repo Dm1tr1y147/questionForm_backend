@@ -5,28 +5,28 @@ import {
   AnswerResolver as Answer,
   formsQuery as forms,
   createFormMutation as createForm,
-  formSubmitMutation as formSubmit
+  formSubmitMutation as formSubmit,
 } from './Form'
 import {
   loginMutation as login,
   registerMutation as register,
-  userQuery as user
+  userQuery as user,
 } from './User'
 
 const resolvers: Resolvers = {
   Query: {
     form,
     forms,
-    user
+    user,
   },
   Mutation: {
     login,
     register,
     createForm,
-    formSubmit
+    formSubmit,
   },
   Question,
-  Answer
+  Answer,
 }
 
 export default resolvers

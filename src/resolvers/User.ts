@@ -1,7 +1,7 @@
 import {
   checkRightsAndResolve,
   findUserBy,
-  genAndSendToken
+  genAndSendToken,
 } from '../controllers'
 import { createUser } from '../controllers/user'
 import {
@@ -10,7 +10,7 @@ import {
   Resolver,
   ServerAnswer,
   User,
-  QueryUserArgs
+  QueryUserArgs,
 } from '../typeDefs/typeDefs.gen'
 import { ApolloContextType } from '../types'
 
@@ -22,6 +22,8 @@ const loginMutation: Resolver<
 > = async (_, { email }, { db }) => {
   try {
     const user = await findUserBy(db, { email })
+
+    if (user instanceof Error) throw user // Needed to a strange error
 
     await genAndSendToken(email, user)
 
@@ -39,6 +41,8 @@ const registerMutation: Resolver<
 > = async (_, { email, name }, { db }) => {
   try {
     const user = await createUser(db, { email, name })
+
+    if (user instanceof Error) throw user // Needed to a strange error
 
     await genAndSendToken(email, user)
 
@@ -60,9 +64,9 @@ const userQuery: Resolver<User, {}, ApolloContextType, QueryUserArgs> = async (
       controller: findUserById,
       expected: {
         id: id || 0,
-        self: true
+        self: true,
       },
-      user
+      user,
     })
   } catch (err) {
     return err

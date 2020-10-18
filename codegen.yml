@@ -1,5 +1,5 @@
 overwrite: true
-schema: "src/typeDefs/typeDefs.gql"
+schema: 'src/typeDefs/typeDefs.gql'
 documents: null
 generates:
   src/typeDefs/typeDefs.gen.ts:
@@ -8,5 +8,5 @@ generates:
       wrapFieldDefinitions: true
       enumsAsTypes: true
     plugins:
-      - "typescript"
-      - "typescript-resolvers"
+      - 'typescript'
+      - 'typescript-resolvers'
