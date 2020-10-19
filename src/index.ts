@@ -18,6 +18,14 @@ app.use(
   })
 )
 
+const errorHandler: express.ErrorRequestHandler = (err, _, res, __) => {
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).send('Invalid token')
+  }
+}
+
+app.use(errorHandler)
+
 const db = new PrismaClient()
 
 const server = new ApolloServer({

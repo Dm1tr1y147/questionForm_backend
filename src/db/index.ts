@@ -42,6 +42,7 @@ const getDBForm = (
       inputQuestions: true,
       submissions: {
         include: {
+          user: true,
           answers: true,
         },
         where:
@@ -77,6 +78,7 @@ const getDBFormsByUser = (db: PrismaClient, id: number) =>
       inputQuestions: true,
       submissions: {
         include: {
+          user: true,
           answers: true,
         },
       },
@@ -126,6 +128,7 @@ const findDBUserBy = (db: PrismaClient, params: IFindUserParams) =>
           inputQuestions: true,
           submissions: {
             include: {
+              user: true,
               answers: true,
             },
           },

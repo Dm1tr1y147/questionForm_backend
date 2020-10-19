@@ -39,8 +39,11 @@ const getForm = async (
       author: dbForm.author,
       dateCreated: dbForm.dateCreated.toString(),
       id: dbForm.id,
-      questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions],
+      questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions].sort(
+        (a, b) => a.number - b.number
+      ),
       submissions: dbForm.submissions.map((submission) => ({
+        user: submission.user,
         answers: submission.answers,
         date: submission.date.toString(),
         id: submission.id,
@@ -68,6 +71,7 @@ const getForms = async (
       id: form.id,
       questions: [...form.choisesQuestions, ...form.inputQuestions],
       submissions: form.submissions.map((submission) => ({
+        user: submission.user,
         answers: submission.answers,
         date: submission.date.toString(),
         id: submission.id,
@@ -137,6 +141,8 @@ const submitAnswer = async (
   try {
     const parsedAnswers = <DbAnswer[]>JSON.parse(answers)
 
+    console.log(parsedAnswers)
+
     const res = await submitDBAnswer(db, userId, formId, parsedAnswers)
 
     if (!res) throw new UserInputError("Can't submit form")
@@ -155,15 +161,18 @@ const formatForms = (
     inputQuestions: InputQuestion[]
     submissions: (Omit<FormSubmission, 'date'> & { date: Date })[]
   })[]
-) =>
-  forms.map((form) => ({
+): GraphqlForm[] =>
+  forms.map<GraphqlForm>((form) => ({
     dateCreated: form.dateCreated.toString(),
     id: form.id,
-    questions: [...form.choisesQuestions, ...form.inputQuestions],
+    questions: [...form.choisesQuestions, ...form.inputQuestions].sort(
+      (a, b) => a.number - b.number
+    ),
     submissions: form.submissions.map((submission) => ({
       answers: submission.answers,
       date: submission.date.toString(),
       id: submission.id,
+      user: submission.user,
     })),
     title: form.title,
   }))

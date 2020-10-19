@@ -42,6 +42,7 @@ type InputQuestion implements Question {
 }
 
 type FormSubmission {
+  user: User
   answers: [Answer!]!
   date: String!
   id: Int!

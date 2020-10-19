@@ -23,7 +23,7 @@ const loginMutation: Resolver<
   try {
     const user = await findUserBy(db, { email })
 
-    if (user instanceof Error) throw user // Needed to a strange error
+    if (user instanceof Error) throw user // Needed to fix a strange error
 
     await genAndSendToken(email, user)
 
@@ -42,7 +42,7 @@ const registerMutation: Resolver<
   try {
     const user = await createUser(db, { email, name })
 
-    if (user instanceof Error) throw user // Needed to a strange error
+    if (user instanceof Error) throw user // Needed to fix a strange error
 
     await genAndSendToken(email, user)
 

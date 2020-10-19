@@ -35,10 +35,14 @@ const getFormAuthor = async (db: PrismaClient, id: number) => {
 }
 
 const tokenGenerate = (email: string, id: number) => {
-  return jwt.sign({ email, id }, '' + process.env.JWT_SECRET, {
+  const token = jwt.sign({ email, id }, '' + process.env.JWT_SECRET, {
     algorithm: 'HS256',
     expiresIn: '7 days',
   })
+
+  if (process.env.NODE_ENV != 'production') console.log(token)
+
+  return token
 }
 
 const genAndSendToken = async (
