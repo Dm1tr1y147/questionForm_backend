@@ -176,6 +176,26 @@ const submitDBAnswer = (
     },
   })
 
+const getDBFormQuestions = async (db: PrismaClient, formId: number) =>
+  db.form.findOne({
+    where: {
+      id: formId,
+    },
+    select: {
+      choisesQuestions: {
+        include: {
+          variants: true,
+        },
+      },
+      inputQuestions: true,
+      submissions: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  })
+
 export {
   createDBForm,
   createDBUser,
@@ -184,4 +204,5 @@ export {
   getDBFormAuthor,
   getDBFormsByUser,
   submitDBAnswer,
+  getDBFormQuestions,
 }

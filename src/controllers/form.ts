@@ -23,7 +23,20 @@ import {
   getDBForm,
   getDBFormsByUser,
   submitDBAnswer,
+  getDBFormQuestions,
 } from '../db'
+import {
+  validateCreateFormParameters,
+  validateSubmitAnswerParameters,
+} from './validate'
+
+const formatQuestions = (
+  choisesQuestions: (ChoisesQuestion & {
+    variants: Variant[]
+  })[],
+  inputQuestions: InputQuestion[]
+) =>
+  [...choisesQuestions, ...inputQuestions].sort((a, b) => a.number - b.number)
 
 const getForm = async (
   db: PrismaClient,
@@ -39,15 +52,19 @@ const getForm = async (
       author: dbForm.author,
       dateCreated: dbForm.dateCreated.toString(),
       id: dbForm.id,
-      questions: [...dbForm.choisesQuestions, ...dbForm.inputQuestions].sort(
-        (a, b) => a.number - b.number
+      questions: formatQuestions(
+        dbForm.choisesQuestions,
+        dbForm.inputQuestions
       ),
-      submissions: dbForm.submissions.map((submission) => ({
-        user: submission.user,
-        answers: submission.answers,
-        date: submission.date.toString(),
-        id: submission.id,
-      })),
+      submissions:
+        dbForm.submissions.length == 0
+          ? null
+          : dbForm.submissions.map((submission) => ({
+              user: submission.user,
+              answers: submission.answers,
+              date: submission.date.toString(),
+              id: submission.id,
+            })),
       title: dbForm.title,
     }
 
@@ -92,6 +109,8 @@ const createFormFrom = async (
 ): Promise<ServerAnswer> => {
   try {
     const parsedQuestions = <UploadedQuestion[]>JSON.parse(params.questions)
+
+    await validateCreateFormParameters(params.title, parsedQuestions)
 
     const newForm: FormConstructor = {
       choisesQuestions: {
@@ -139,9 +158,22 @@ const submitAnswer = async (
   userId: number
 ): Promise<ServerAnswer> => {
   try {
+    const form = await getDBFormQuestions(db, formId)
+    if (!form) throw new UserInputError("Can't submit form")
+
+    console.log(formatQuestions(form.choisesQuestions, form.inputQuestions))
+
+    form.submissions.forEach((submission) => {
+      if (submission.userId === userId)
+        throw new UserInputError("Can't submit same form more than once")
+    })
+
     const parsedAnswers = <DbAnswer[]>JSON.parse(answers)
 
-    console.log(parsedAnswers)
+    await validateSubmitAnswerParameters(
+      parsedAnswers,
+      formatQuestions(form.choisesQuestions, form.inputQuestions)
+    )
 
     const res = await submitDBAnswer(db, userId, formId, parsedAnswers)
 
@@ -165,9 +197,7 @@ const formatForms = (
   forms.map<GraphqlForm>((form) => ({
     dateCreated: form.dateCreated.toString(),
     id: form.id,
-    questions: [...form.choisesQuestions, ...form.inputQuestions].sort(
-      (a, b) => a.number - b.number
-    ),
+    questions: formatQuestions(form.choisesQuestions, form.inputQuestions),
     submissions: form.submissions.map((submission) => ({
       answers: submission.answers,
       date: submission.date.toString(),
