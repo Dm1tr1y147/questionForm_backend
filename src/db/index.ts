@@ -19,10 +19,10 @@ const getDBForm = (
   formId: number,
   {
     requesterId,
-    userId,
+    ownerId: ownerId,
   }: {
     requesterId: number
-    userId: number
+    ownerId: number
   }
 ) =>
   db.form.findOne({
@@ -46,7 +46,7 @@ const getDBForm = (
           answers: true,
         },
         where:
-          requesterId != userId
+          requesterId != ownerId
             ? {
                 user: {
                   id: requesterId,
@@ -134,9 +134,10 @@ const findDBUserBy = (db: PrismaClient, params: IFindUserParams) =>
           },
         },
       },
-      formsSubmissions: {
+      formSubmissions: {
         include: {
           answers: true,
+          Form: true,
         },
       },
     },
@@ -176,7 +177,7 @@ const submitDBAnswer = (
     },
   })
 
-const getDBFormQuestions = async (db: PrismaClient, formId: number) =>
+const getDBFormToSubmit = async (db: PrismaClient, formId: number) =>
   db.form.findOne({
     where: {
       id: formId,
@@ -204,5 +205,5 @@ export {
   getDBFormAuthor,
   getDBFormsByUser,
   submitDBAnswer,
-  getDBFormQuestions,
+  getDBFormToSubmit,
 }

@@ -4,6 +4,7 @@ import { MutationRegisterArgs, User } from '../typeDefs/typeDefs.gen'
 import { PrismaClient } from '@prisma/client'
 import { ApolloError, UserInputError } from 'apollo-server-express'
 import { formatForms } from './form'
+import { formSubmitMutation, formsQuery } from 'resolvers/Form'
 
 const createUser = async (
   db: PrismaClient,
@@ -36,9 +37,17 @@ const findUserBy = async (
 
     if (!dbUser) throw new UserInputError('No such user')
 
-    const user = {
+    const user: User = {
       ...dbUser,
       forms: formatForms(dbUser.forms),
+      formSubmissions: dbUser.formSubmissions.map((formSubmission) => ({
+        ...formSubmission,
+        date: formSubmission.date.toString(),
+        form: formSubmission.Form && {
+          ...formSubmission.Form,
+          dateCreated: formSubmission.Form?.dateCreated.toString(),
+        },
+      })),
     }
 
     return user

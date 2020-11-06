@@ -15,7 +15,7 @@ type Form {
   author: User
   dateCreated: String!
   id: Int!
-  questions: [Question!]!
+  questions: [Question!]
   submissions: [FormSubmission!]
   title: String!
 }
@@ -46,6 +46,7 @@ type FormSubmission {
   answers: [Answer!]!
   date: String!
   id: Int!
+  form: Form
 }
 
 interface Answer {
@@ -78,6 +79,7 @@ type User {
   forms: [Form!]
   id: Int!
   name: String!
+  formSubmissions: [FormSubmission!]
 }
 
 type serverAnswer {

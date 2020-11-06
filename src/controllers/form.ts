@@ -23,7 +23,7 @@ import {
   getDBForm,
   getDBFormsByUser,
   submitDBAnswer,
-  getDBFormQuestions,
+  getDBFormToSubmit,
 } from '../db'
 import {
   validateCreateFormParameters,
@@ -41,7 +41,7 @@ const formatQuestions = (
 const getForm = async (
   db: PrismaClient,
   id: number,
-  user: { requesterId: number; userId: number }
+  user: { requesterId: number; ownerId: number }
 ): Promise<GraphqlForm> => {
   try {
     const dbForm = await getDBForm(db, id, user)
@@ -57,14 +57,14 @@ const getForm = async (
         dbForm.inputQuestions
       ),
       submissions:
-        dbForm.submissions.length == 0
-          ? null
-          : dbForm.submissions.map((submission) => ({
+        user.ownerId == user.requesterId || !(dbForm.submissions.length == 0)
+          ? dbForm.submissions.map((submission) => ({
               user: submission.user,
               answers: submission.answers,
               date: submission.date.toString(),
               id: submission.id,
-            })),
+            }))
+          : null,
       title: dbForm.title,
     }
 
@@ -158,10 +158,8 @@ const submitAnswer = async (
   userId: number
 ): Promise<ServerAnswer> => {
   try {
-    const form = await getDBFormQuestions(db, formId)
+    const form = await getDBFormToSubmit(db, formId)
     if (!form) throw new UserInputError("Can't submit form")
-
-    console.log(formatQuestions(form.choisesQuestions, form.inputQuestions))
 
     form.submissions.forEach((submission) => {
       if (submission.userId === userId)

@@ -26,8 +26,8 @@ const formQuery: Resolver<Form, {}, ApolloContextType, QueryFormArgs> = async (
   try {
     const ownerId = await getFormAuthor(db, id)
 
-    const getFormById = (userId: number) =>
-      getForm(db, id, { requesterId: userId, userId: ownerId })
+    const getFormById = (requesterId: number) =>
+      getForm(db, id, { requesterId, ownerId })
 
     return await checkRightsAndResolve({
       controller: getFormById,
@@ -74,7 +74,10 @@ const createFormMutation: Resolver<
 > = async (_, params, { db, user }) => {
   const createNewForm = (id: number) => createFormFrom(db, params, id)
 
-  return await checkRightsAndResolve({
+  return await checkRightsAndResolve<
+    ServerAnswer,
+    (id: number) => Promise<ServerAnswer>
+  >({
     controller: createNewForm,
     expected: {
       id: 0,
@@ -92,7 +95,10 @@ const formSubmitMutation: Resolver<
 > = async (_, params, { db, user }) => {
   const submitNewAnswer = (userId: number) => submitAnswer(db, params, userId)
 
-  return await checkRightsAndResolve({
+  return await checkRightsAndResolve<
+    ServerAnswer,
+    (userId: number) => Promise<ServerAnswer>
+  >({
     controller: submitNewAnswer,
     expected: {
       id: 0,
