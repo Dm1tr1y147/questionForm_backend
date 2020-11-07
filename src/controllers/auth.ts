@@ -40,8 +40,6 @@ const tokenGenerate = (email: string, id: number) => {
     expiresIn: '7 days',
   })
 
-  if (process.env.NODE_ENV != 'production') console.log(token)
-
   return token
 }
 

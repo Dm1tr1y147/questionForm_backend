@@ -19,7 +19,7 @@
     "dev": "nodemon",
     "start": "ts-node src/index.ts",
     "copy-assets": "cp src/typeDefs/typeDefs.gql dist/typeDefs/typeDefs.gql && cp .env.example dist/.env && vi dist/.env",
-    "build": "tsc && npm copy-assets",
+    "build": "tsc && yarn copy-assets",
     "codegen": "graphql-codegen --config codegen.yml",
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
