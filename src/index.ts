@@ -51,7 +51,7 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app })
 
-const port = process.env.PORT || 4000
+const port = process.env.BACKEND_PORT || 4000
 
 app.listen(port, () => {
   console.log(`Server ready at http://localhost:${port}`)
