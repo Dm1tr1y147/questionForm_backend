@@ -6,8 +6,6 @@ import {
 } from 'apollo-server-express'
 import { PrismaClient } from '@prisma/client'
 
-require('dotenv').config()
-
 import { CheckRightsAndResolve } from './types'
 import { getDBFormAuthor } from '../db'
 import { sendToken } from './mailer'
