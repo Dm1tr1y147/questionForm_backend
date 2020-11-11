@@ -6,8 +6,6 @@ import { ApolloContextType, JwtPayloadType } from './types'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server-express'
 import { PrismaClient } from '@prisma/client'
 
-require('dotenv').config()
-
 const app = express()
 
 app.use(
