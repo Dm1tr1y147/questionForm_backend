@@ -10,6 +10,8 @@ import { CheckRightsAndResolve } from './types'
 import { getDBFormAuthor } from '../db'
 import { sendToken } from './mailer'
 
+if (process.env.NODE_ENV === 'development') require('dotenv').config()
+
 const checkRightsAndResolve: CheckRightsAndResolve = async (params) => {
   const { user, expected, controller } = params
 
