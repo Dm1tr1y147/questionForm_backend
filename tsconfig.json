@@ -4,7 +4,7 @@
     "module": "CommonJS" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     "strict": true /* Enable all strict type-checking options. */,
     "outDir": "dist",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "moduleResolution": "Node",
     "baseUrl": "src",
     "incremental": true,
