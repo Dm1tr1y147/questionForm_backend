@@ -3,9 +3,7 @@ WORKDIR /backend
 COPY package.json /backend/package.json
 RUN yarn
 COPY . /backend
-RUN yarn codegen
-RUN yarn prisma generate
-RUN yarn build
+RUN yarn prisma generate && yarn codegen && yarn build
 
 FROM node:alpine
 WORKDIR /backend
